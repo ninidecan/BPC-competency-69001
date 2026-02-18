@@ -817,7 +817,11 @@ function updateTimelineCards() {
 // ==================== FORM ====================
 function startAssessment(round) {
   currentRound = round;
-  currentSection = currentUser.personalInfo ? 2 : 1;
+  if (round === 'pre') {
+  currentSection = currentUser.personalInfo ? 2 : 1; // pre ยังมี section 1
+} else {
+  currentSection = 2; // post1 / post2 เริ่มที่ section 2 เสมอ
+}
   formAnswers = { section1:{}, section2:[], section3:[], section4:{} };
   if (currentUser.personalInfo) formAnswers.section1 = { ...currentUser.personalInfo };
 

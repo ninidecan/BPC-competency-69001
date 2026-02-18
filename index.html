@@ -823,8 +823,15 @@ function startAssessment(round) {
 
   const titles = { pre:'Pre-test', post1:'Post-test 1', post2:'Post-test 2' };
   document.getElementById('form-title').textContent = `แบบประเมิน ${titles[currentRound]}`;
-  const totalSec = (currentUser.personalInfo ? 0 : 1) + 2 + (currentRound === 'post2' ? 1 : 0);
-  document.getElementById('total-section').textContent = totalSec;
+  let totalSec;
+if (round === 'pre') {
+  totalSec = currentUser.personalInfo ? 2 : 3;   // 1-2-3 หรือ 2-3
+} else if (round === 'post1') {
+  totalSec = 2;                                  // 2-3
+} else if (round === 'post2') {
+  totalSec = 3;                                  // 2-3-4
+}
+document.getElementById('total-section').textContent = totalSec;
 
   showPage('form-page');
   generateQuestions();
@@ -897,7 +904,17 @@ function selectLikert(btn) {
 function showSection(sectionNum) {
   currentSection = sectionNum;
   document.getElementById('current-section').textContent = sectionNum;
-  document.querySelectorAll('.form-section').forEach((s,i) => s.classList.toggle('hidden', i+1 !== sectionNum));
+  document.querySelectorAll('.form-section').forEach((s,i) => {
+  const sec = i + 1;
+
+  // ห้าม section 4 ถ้าไม่ใช่ post2
+  if (sec === 4 && currentRound !== 'post2') {
+    s.classList.add('hidden');
+    return;
+  }
+
+  s.classList.toggle('hidden', sec !== sectionNum);
+});
   const startSection  = currentUser.personalInfo ? 2 : 1;
   const totalSections = (currentUser.personalInfo ? 0 : 1) + 2 + (currentRound === 'post2' ? 1 : 0);
   document.getElementById('prev-section-btn').classList.toggle('hidden', sectionNum <= startSection);

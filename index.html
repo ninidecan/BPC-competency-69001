@@ -1,347 +1,526 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="th" class="h-full">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ระบบประเมินสมรรถนะพยาบาลด้านการดูแลแบบประคับประคอง</title>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
+<title>แบบประเมินผลสัมฤทธิ์</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: { extend: { fontFamily: { 'prompt': ['Prompt', 'sans-serif'] } } }
+}
+</script>
 <style>
-  * { font-family: 'Prompt', sans-serif; }
-  body { background: linear-gradient(135deg, #0f766e 0%, #0e7490 50%, #1e40af 100%); min-height: 100vh; }
-
-  /* ── Likert Section 2 ── */
-  .s2-btn { width:48px;height:48px;border-radius:8px;border:2px solid transparent;font-weight:600;font-size:15px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center; }
-  .s2-btn:hover { transform:scale(1.08); }
-  .s2-0 { background:#e5e7eb;color:#374151;border-color:#9ca3af; }
-  .s2-0.selected { background:#6b7280;color:#fff;border-color:#374151;box-shadow:0 0 0 3px #37415180; }
-  .s2-1 { background:#fee2e2;color:#991b1b;border-color:#fca5a5; }
-  .s2-1.selected { background:#dc2626;color:#fff;border-color:#991b1b;box-shadow:0 0 0 3px #dc262680; }
-  .s2-2 { background:#ffedd5;color:#9a3412;border-color:#fdba74; }
-  .s2-2.selected { background:#ea580c;color:#fff;border-color:#9a3412;box-shadow:0 0 0 3px #ea580c80; }
-  .s2-3 { background:#fef9c3;color:#713f12;border-color:#fde047; }
-  .s2-3.selected { background:#ca8a04;color:#fff;border-color:#713f12;box-shadow:0 0 0 3px #ca8a0480; }
-  .s2-4 { background:#dcfce7;color:#14532d;border-color:#86efac; }
-  .s2-4.selected { background:#16a34a;color:#fff;border-color:#14532d;box-shadow:0 0 0 3px #16a34a80; }
-  .s2-5 { background:#bbf7d0;color:#14532d;border-color:#4ade80; }
-  .s2-5.selected { background:#15803d;color:#fff;border-color:#14532d;box-shadow:0 0 0 3px #15803d80; }
-
-  /* ── Likert Section 3 ── */
-  .s3-btn { width:48px;height:48px;border-radius:8px;border:2px solid #c4b5fd;font-weight:600;font-size:15px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;background:#f5f3ff;color:#5b21b6; }
-  .s3-btn:hover { transform:scale(1.08); }
-  .s3-1.selected { background:#dc2626;color:#fff;border-color:#991b1b;box-shadow:0 0 0 3px #dc262680; }
-  .s3-2.selected { background:#ea580c;color:#fff;border-color:#9a3412;box-shadow:0 0 0 3px #ea580c80; }
-  .s3-3.selected { background:#ca8a04;color:#fff;border-color:#713f12;box-shadow:0 0 0 3px #ca8a0480; }
-  .s3-4.selected { background:#16a34a;color:#fff;border-color:#14532d;box-shadow:0 0 0 3px #16a34a80; }
-  .s3-5.selected { background:#15803d;color:#fff;border-color:#14532d;box-shadow:0 0 0 3px #15803d80; }
-
-  .zebra-even { background:#f0fdfa; }
-  .zebra-odd  { background:#ffffff; }
-  .error-highlight { border-color:#ef4444 !important; box-shadow:0 0 0 3px #ef444440 !important; }
-
-  /* ── Toast ── */
-  #toast-container { position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px; }
-  .toast { padding:12px 18px;border-radius:10px;font-size:14px;font-weight:500;color:#fff;max-width:320px;animation:slideIn .3s ease;box-shadow:0 4px 12px rgba(0,0,0,.2); }
-  @keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
-  .toast-info    { background:#0891b2; }
-  .toast-success { background:#059669; }
-  .toast-warning { background:#d97706; }
-  .toast-error   { background:#dc2626; }
-
-  /* ── Progress bar ── */
-  #form-progress-bar { transition:width .3s ease; }
-
-  /* Score preview badge */
-  .score-preview { background:#fef9c3;border-left:4px solid #f59e0b;padding:6px 10px;border-radius:0 6px 6px 0;font-size:12px;color:#92400e;margin-top:4px;display:none; }
-  .score-preview.show { display:block; }
-
-  /* Card locked */
-  .card-locked { opacity:.55;pointer-events:none;cursor:not-allowed; }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar{width:6px} ::-webkit-scrollbar-track{background:#f1f5f9} ::-webkit-scrollbar-thumb{background:#94a3b8;border-radius:3px}
-
-  /* Loading spinner */
-  .spinner { border:3px solid #e2e8f0;border-top:3px solid #0891b2;border-radius:50%;width:28px;height:28px;animation:spin .7s linear infinite;display:inline-block; }
-  @keyframes spin { to{transform:rotate(360deg)} }
-
-  input[type=number]::-webkit-inner-spin-button,
-  input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; }
+* { font-family: 'Prompt', sans-serif; }
+html, body { height: 100%; }
+#app { height: 100%; }
+.likert-btn { min-width: 48px; min-height: 48px; transition: all 0.2s; font-weight: 600; border: 2px solid; }
+.zebra-row:nth-child(odd)  { background-color: #F0FDFA; }
+.zebra-row:nth-child(even) { background-color: #FFFFFF; }
+.error-highlight { border: 2px solid #EF4444 !important; box-shadow: 0 0 0 4px rgba(239,68,68,0.1); }
+.card-locked { opacity: 0.6; cursor: not-allowed; }
+.toast { animation: slideIn 0.3s ease-out; }
+@keyframes slideIn { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.s2-unselected { background-color:#d1d5db!important; border-color:#9ca3af!important; color:#4b5563!important; }
+.s2-0 { background-color:#9ca3af!important; border-color:#6b7280!important; color:white!important; }
+.s2-1 { background-color:#f87171!important; border-color:#dc2626!important; color:white!important; }
+.s2-2 { background-color:#fb923c!important; border-color:#ea580c!important; color:white!important; }
+.s2-3 { background-color:#fcd34d!important; border-color:#eab308!important; color:#333!important; }
+.s2-4 { background-color:#bfef45!important; border-color:#65a30d!important; color:#1a1a1a!important; }
+.s2-5 { background-color:#4ade80!important; border-color:#16a34a!important; color:white!important; }
+.s3-unselected { background-color:#ddd6fe!important; border-color:#c4b5fd!important; color:#6b21a8!important; }
+.s3-1 { background-color:#f87171!important; border-color:#dc2626!important; color:white!important; }
+.s3-2 { background-color:#fb923c!important; border-color:#ea580c!important; color:white!important; }
+.s3-3 { background-color:#fcd34d!important; border-color:#eab308!important; color:#333!important; }
+.s3-4 { background-color:#bfef45!important; border-color:#65a30d!important; color:#1a1a1a!important; }
+.s3-5 { background-color:#4ade80!important; border-color:#16a34a!important; color:white!important; }
+.scale-transition { transition: all 0.3s ease; }
+.score-preview {
+  display: inline-block; padding: 6px 10px; background-color: #fef3c7;
+  border-left: 3px solid #f59e0b; border-radius: 4px; font-size: 12px;
+  color: #92400e; margin-top: 4px; font-weight: 600;
+}
+.sticky-header { position: sticky; top: 0; z-index: 30; }
 </style>
 </head>
-<body>
+<body class="h-full bg-gradient-to-br from-cyan-50 via-white to-teal-50 overflow-auto">
+<div id="app" class="h-full w-full overflow-auto">
 
-<!-- ======================================================
-     TOAST CONTAINER
-     ====================================================== -->
-<div id="toast-container"></div>
+<!-- Toast -->
+<div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
 
-<!-- ======================================================
-     MODAL
-     ====================================================== -->
-<div id="modal" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center hidden">
-  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8 text-center">
-    <div id="modal-icon" class="text-5xl mb-4">✅</div>
-    <h3 id="modal-title" class="text-xl font-bold text-gray-800 mb-2"></h3>
-    <p id="modal-msg" class="text-gray-600 text-sm mb-6 whitespace-pre-line leading-relaxed"></p>
-    <button onclick="closeModal()" class="bg-gradient-to-r from-teal-500 to-cyan-600 text-white px-8 py-3 rounded-xl font-semibold hover:from-teal-600 hover:to-cyan-700 transition">ตกลง</button>
-  </div>
-</div>
-
-<!-- ======================================================
-     PAGE: LOGIN
-     ====================================================== -->
-<div id="login-page" class="min-h-screen flex items-center justify-center p-4">
-  <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full p-8">
-    <div class="text-center mb-8">
-      <div class="w-20 h-20 bg-gradient-to-br from-teal-400 to-cyan-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
-        <span class="text-white text-3xl">🏥</span>
+<!-- ===== LOGIN PAGE ===== -->
+<div id="login-page" class="min-h-full flex items-center justify-center p-4">
+  <div class="w-full max-w-md">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 border border-cyan-100">
+      <div class="text-center mb-8">
+        <div class="w-20 h-20 mx-auto mb-4 shadow-lg rounded-full overflow-hidden">
+          <img src="https://img2.pic.in.th/PCC53b95442d103d70e.png" alt="Logo" class="w-full h-full object-cover">
+        </div>
+        <h1 class="text-lg font-bold text-gray-800 mb-2">แบบประเมินผลสัมฤทธิ์</h1>
+        <p class="text-gray-600 text-xs leading-relaxed">โครงการฝึกอบรมการดูแลผู้ป่วยแบบประคับประคองขั้นพื้นฐาน สำหรับพยาบาลปฏิบัติงานหอผู้ป่วย</p>
+        <p class="text-cyan-600 text-xs font-semibold mt-1">(หลักสูตร 5 วัน)</p>
       </div>
-      <h1 class="text-2xl font-bold text-gray-800 leading-snug">ระบบประเมินผลสัมฤทธิ์</h1>
-      <p class="text-gray-500 text-sm mt-1">โครงการฝึกอบรมการดูแลผู้ป่วยแบบประคับประคอง สำหรับพยาบาลประจำหอผู้ป่วย (หลักสูตร 5 วัน)</p>
-      <p class="text-teal-600 text-xs mt-1 font-medium">โรงพยาบาลมหาราชนครราชสีมา</p>
-    </div>
-    <div>
-      <label class="block text-sm font-semibold text-gray-700 mb-2">เลขที่ใบอนุญาตประกอบวิชาชีพ</label>
-      <input id="license-input" type="text" inputmode="numeric" maxlength="10" placeholder="กรอกเลข 10 หลัก"
-        class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-center text-xl font-bold tracking-widest focus:outline-none focus:border-teal-400 transition"
-        onkeyup="this.value=this.value.replace(/\D/g,''); if(event.key==='Enter') handleLogin()">
-      <p class="text-xs text-gray-400 mt-2 text-center">ตัวเลข 10 หลักเท่านั้น</p>
-    </div>
-    <button onclick="handleLogin()" class="w-full mt-6 bg-gradient-to-r from-teal-500 to-cyan-600 text-white py-4 rounded-xl font-bold text-lg hover:from-teal-600 hover:to-cyan-700 transition shadow-md flex items-center justify-center gap-2">
-      <span id="login-btn-text">เข้าสู่ระบบ</span>
-      <span id="login-spinner" class="spinner hidden"></span>
-    </button>
-    <p class="text-xs text-gray-400 text-center mt-4">ข้อมูลจะถูกเก็บเป็นความลับ</p>
-  </div>
-</div>
-
-<!-- ======================================================
-     PAGE: TIMELINE
-     ====================================================== -->
-<div id="timeline-page" class="hidden min-h-screen p-4 pb-10">
-  <div class="max-w-2xl mx-auto">
-    <!-- Header -->
-    <div class="flex items-center justify-between mb-6 pt-4">
-      <div>
-        <h2 class="text-white font-bold text-lg">แบบประเมินสมรรถนะ</h2>
-        <p class="text-teal-100 text-sm">เลขที่ใบอนุญาต: <span id="display-license" class="font-semibold"></span></p>
-      </div>
-      <button onclick="logout()" class="bg-white/20 text-white px-4 py-2 rounded-xl text-sm hover:bg-white/30 transition font-medium">ออกจากระบบ</button>
-    </div>
-
-    <!-- Info banner -->
-    <div class="bg-white/15 backdrop-blur-sm rounded-2xl p-4 mb-6 text-white text-sm">
-      <div class="flex items-start gap-3">
-        <span class="text-xl">📋</span>
+      <div class="space-y-6">
         <div>
-          <p class="font-semibold">คำชี้แจง</p>
-          <p class="text-teal-100 mt-1">กรุณาทำแบบประเมินทั้ง 3 รอบตามลำดับ: ก่อนอบรม (Pre-test) → หลังอบรม 5 วัน (Post-test 1) → ติดตามผล 3 เดือน (Post-test 2)</p>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"></path>
+            </svg>
+            เลขที่ใบประกอบวิชาชีพ
+          </label>
+          <input type="text" id="license-input" maxlength="10" pattern="[0-9]*" inputmode="numeric"
+            placeholder="กรอกตัวเลข 10 หลัก"
+            class="w-full px-4 py-4 text-lg text-center tracking-widest border-2 border-gray-200 rounded-xl focus:border-cyan-500 focus:ring-4 focus:ring-cyan-100 transition-all outline-none">
+          <p id="license-error" class="text-red-500 text-sm mt-2 hidden">กรุณากรอกเลขใบประกอบวิชาชีพ 10 หลัก</p>
         </div>
-      </div>
-    </div>
-
-    <!-- Cards -->
-    <div id="timeline-cards" class="flex flex-col gap-4"></div>
-
-    <!-- Dashboard button -->
-    <div id="dashboard-btn-wrap" class="hidden mt-6">
-      <button onclick="showDashboard()" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-4 rounded-2xl font-bold text-lg hover:from-purple-600 hover:to-pink-600 transition shadow-lg flex items-center justify-center gap-2">
-        <span>📊</span> ดูผลการประเมินทั้งหมด
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ======================================================
-     PAGE: FORM
-     ====================================================== -->
-<div id="form-page" class="hidden min-h-screen">
-  <!-- Sticky header with progress -->
-  <div class="sticky top-0 z-30 bg-white/95 backdrop-blur-sm shadow-md">
-    <div class="max-w-4xl mx-auto px-4 py-3">
-      <div class="flex items-center gap-3">
-        <button onclick="goToTimeline()" class="text-gray-500 hover:text-gray-700 transition p-1">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        <button id="login-btn" class="w-full py-4 bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all active:scale-95">
+          เข้าสู่ระบบ
         </button>
-        <div class="flex-1">
-          <div class="flex items-center justify-between mb-1">
-            <span id="form-round-label" class="text-xs font-semibold text-gray-600"></span>
-            <span id="form-progress-pct" class="text-xs font-bold text-teal-600"></span>
-          </div>
-          <div class="bg-gray-200 rounded-full h-2">
-            <div id="form-progress-bar" class="h-2 rounded-full bg-gradient-to-r from-teal-400 to-cyan-500" style="width:0%"></div>
-          </div>
-        </div>
       </div>
+      <p class="text-center text-gray-400 text-xs mt-6">ข้อมูลจะถูกเก็บเป็นความลับ</p>
     </div>
   </div>
+</div>
 
-  <div class="max-w-4xl mx-auto px-4 py-6">
-    <!-- Section 1: Personal Info -->
-    <div id="section-1" class="hidden">
-      <div class="bg-white rounded-2xl shadow-lg p-6 mb-4">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="w-10 h-10 bg-teal-500 rounded-xl flex items-center justify-center text-white font-bold">1</div>
-          <div>
-            <h3 class="font-bold text-gray-800 text-lg">ข้อมูลส่วนบุคคล</h3>
-            <p class="text-gray-500 text-sm">กรุณากรอกข้อมูลให้ครบถ้วน</p>
-          </div>
+<!-- ===== TIMELINE PAGE ===== -->
+<div id="timeline-page" class="hidden w-full min-h-full p-4 pb-24">
+  <div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-cyan-100">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-gray-800">แบบประเมินผลสัมฤทธิ์</h2>
+          <p class="text-gray-500 text-sm mt-1">เลขที่ใบประกอบ: <span id="display-license" class="font-medium text-cyan-600"></span></p>
         </div>
-        <div id="personal-info-form" class="space-y-5">
-          <!-- Dynamically rendered -->
+        <button id="logout-btn" class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="space-y-4" id="timeline-cards">
+      <!-- Pre-test -->
+      <div class="assessment-card" data-round="pre">
+        <div class="bg-white rounded-2xl shadow-lg border-2 border-cyan-200 overflow-hidden transition-all hover:shadow-xl">
+          <div class="p-6">
+            <div class="flex items-start gap-4">
+              <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center flex-shrink-0 shadow-md">
+                <span class="text-white font-bold text-lg">1</span>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="font-bold text-lg text-gray-800">Pre-test</h3>
+                  <span class="status-badge px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">ยังไม่ทำ</span>
+                </div>
+                <p class="text-gray-500 text-sm">แบบประเมินก่อนการอบรม</p>
+                <p class="text-gray-400 text-xs mt-2 completion-date hidden">เสร็จสิ้นเมื่อ: <span></span></p>
+              </div>
+              <button class="start-btn px-6 py-3 bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all active:scale-95">เริ่มทำ</button>
+            </div>
+          </div>
+          <div class="h-1 bg-gray-100"><div class="progress-bar h-full bg-gradient-to-r from-cyan-500 to-teal-500 transition-all duration-500" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- Post-test 1 -->
+      <div class="assessment-card card-locked" data-round="post1">
+        <div class="bg-white rounded-2xl shadow-lg border-2 border-gray-200 overflow-hidden transition-all">
+          <div class="p-6">
+            <div class="flex items-start gap-4">
+              <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center flex-shrink-0 shadow-md">
+                <span class="text-white font-bold text-lg">2</span>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="font-bold text-lg text-gray-800">Post-test 1</h3>
+                  <span class="status-badge px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">รอปลดล็อค</span>
+                </div>
+                <p class="text-gray-500 text-sm">แบบประเมินหลังการอบรมครั้งที่ 1</p>
+                <p class="text-gray-400 text-xs mt-2 completion-date hidden">เสร็จสิ้นเมื่อ: <span></span></p>
+              </div>
+              <button class="start-btn px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded-xl cursor-not-allowed" disabled>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+              </button>
+            </div>
+          </div>
+          <div class="h-1 bg-gray-100"><div class="progress-bar h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <!-- Post-test 2 -->
+      <div class="assessment-card card-locked" data-round="post2">
+        <div class="bg-white rounded-2xl shadow-lg border-2 border-gray-200 overflow-hidden transition-all">
+          <div class="p-6">
+            <div class="flex items-start gap-4">
+              <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-emerald-500 to-green-500 flex items-center justify-center flex-shrink-0 shadow-md">
+                <span class="text-white font-bold text-lg">3</span>
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="font-bold text-lg text-gray-800">Post-test 2</h3>
+                  <span class="status-badge px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">รอปลดล็อค</span>
+                </div>
+                <p class="text-gray-500 text-sm">แบบประเมินหลังการอบรมครั้งที่ 2</p>
+                <p class="text-gray-400 text-xs mt-2 completion-date hidden">เสร็จสิ้นเมื่อ: <span></span></p>
+              </div>
+              <button class="start-btn px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded-xl cursor-not-allowed" disabled>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+              </button>
+            </div>
+          </div>
+          <div class="h-1 bg-gray-100"><div class="progress-bar h-full bg-gradient-to-r from-emerald-500 to-green-500 transition-all duration-500" style="width:0%"></div></div>
         </div>
       </div>
     </div>
 
-    <!-- Section 2: Competency -->
-    <div id="section-2" class="hidden">
-      <div class="bg-white rounded-2xl shadow-lg p-6 mb-4">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center text-white font-bold">2</div>
-          <div>
-            <h3 class="font-bold text-gray-800 text-lg">สมรรถนะการพยาบาลแบบประคับประคอง</h3>
-            <p class="text-gray-500 text-sm">65 ข้อ — คะแนน 0–5 ต่อข้อ (รวม 0–325 คะแนน)</p>
-          </div>
-        </div>
-        <!-- Scale legend -->
-        <div class="grid grid-cols-3 sm:grid-cols-6 gap-1 mb-6 text-xs">
-          <div class="s2-0 rounded-lg p-2 text-center selected"><b>0</b><br>ไม่มีประสบการณ์</div>
-          <div class="s2-1 rounded-lg p-2 text-center selected"><b>1</b><br>ผู้เริ่มต้น</div>
-          <div class="s2-2 rounded-lg p-2 text-center selected"><b>2</b><br>ผู้เริ่มปฏิบัติ</div>
-          <div class="s2-3 rounded-lg p-2 text-center selected"><b>3</b><br>ผู้มีสมรรถนะ</div>
-          <div class="s2-4 rounded-lg p-2 text-center selected"><b>4</b><br>ผู้ชำนาญ</div>
-          <div class="s2-5 rounded-lg p-2 text-center selected"><b>5</b><br>ผู้เชี่ยวชาญ</div>
-        </div>
-        <div id="s2-questions" class="space-y-3"></div>
-      </div>
-    </div>
-
-    <!-- Section 3: Person-Centered -->
-    <div id="section-3" class="hidden">
-      <div class="bg-white rounded-2xl shadow-lg p-6 mb-4">
-        <div class="flex items-center gap-3 mb-4">
-          <div class="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center text-white font-bold">3</div>
-          <div>
-            <h3 class="font-bold text-gray-800 text-lg">การดูแลแบบมุ่งเน้นบุคคล</h3>
-            <p class="text-gray-500 text-sm">13 ข้อ — คะแนน 1–5 ต่อข้อ (รวม 13–65 คะแนน)</p>
-          </div>
-        </div>
-        <div class="grid grid-cols-5 gap-1 mb-6 text-xs text-center">
-          <div class="bg-red-100 text-red-800 rounded-lg p-2"><b>1</b><br>ไม่เห็นด้วย<br>อย่างยิ่ง</div>
-          <div class="bg-orange-100 text-orange-800 rounded-lg p-2"><b>2</b><br>ไม่เห็นด้วย</div>
-          <div class="bg-yellow-100 text-yellow-800 rounded-lg p-2"><b>3</b><br>ปานกลาง</div>
-          <div class="bg-green-100 text-green-800 rounded-lg p-2"><b>4</b><br>เห็นด้วย</div>
-          <div class="bg-emerald-100 text-emerald-800 rounded-lg p-2"><b>5</b><br>เห็นด้วย<br>อย่างยิ่ง</div>
-        </div>
-        <div id="s3-questions" class="space-y-2"></div>
-      </div>
-    </div>
-
-    <!-- Section 4: Patient data (Post-test 2 only) -->
-    <div id="section-4" class="hidden">
-      <div class="bg-white rounded-2xl shadow-lg p-6 mb-4">
-        <div class="flex items-center gap-3 mb-6">
-          <div class="w-10 h-10 bg-emerald-500 rounded-xl flex items-center justify-center text-white font-bold">4</div>
-          <div>
-            <h3 class="font-bold text-gray-800 text-lg">ข้อมูลผู้ป่วยที่ดูแล</h3>
-            <p class="text-gray-500 text-sm">ในช่วง 3 เดือนที่ผ่านมา</p>
-          </div>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">จำนวนผู้ป่วย Cancer <span class="text-red-500">*</span></label>
-            <input id="cancer-patients" type="number" min="0" placeholder="0"
-              class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-xl font-bold text-center focus:outline-none focus:border-teal-400 transition">
-          </div>
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">จำนวนผู้ป่วย Non-cancer <span class="text-red-500">*</span></label>
-            <input id="non-cancer-patients" type="number" min="0" placeholder="0"
-              class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-xl font-bold text-center focus:outline-none focus:border-teal-400 transition">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Navigation buttons -->
-    <div class="flex gap-3 mt-4">
-      <button id="btn-prev" onclick="prevSection()" class="hidden flex-1 bg-gray-200 text-gray-700 py-4 rounded-xl font-semibold hover:bg-gray-300 transition">← ย้อนกลับ</button>
-      <button id="btn-next" onclick="nextSection()" class="flex-1 bg-gradient-to-r from-teal-500 to-cyan-600 text-white py-4 rounded-xl font-bold hover:from-teal-600 hover:to-cyan-700 transition flex items-center justify-center gap-2">
-        ถัดไป →
-      </button>
-      <button id="btn-submit" onclick="submitAssessment()" class="hidden flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold hover:from-green-600 hover:to-emerald-700 transition flex items-center justify-center gap-2">
-        <span id="submit-text">บันทึกผลการประเมิน ✓</span>
-        <span id="submit-spinner" class="spinner hidden"></span>
+    <div id="dashboard-btn-container" class="hidden mt-6">
+      <button id="view-dashboard-btn" class="w-full py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+        ดูผลลัพธ์ภาพรวม
       </button>
     </div>
   </div>
 </div>
 
-<!-- ======================================================
-     PAGE: DASHBOARD
-     ====================================================== -->
-<div id="dashboard-page" class="hidden min-h-screen p-4 pb-10">
+<!-- ===== FORM PAGE ===== -->
+<div id="form-page" class="hidden w-full min-h-full">
+  <div class="sticky top-0 z-40 bg-white/95 backdrop-blur-sm shadow-md">
+    <div class="max-w-4xl mx-auto px-4 py-3">
+      <div class="flex items-center justify-between">
+        <button id="back-to-timeline" class="p-2 -ml-2 text-gray-600 hover:text-cyan-600 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </button>
+        <div class="text-center">
+          <h2 id="form-title" class="font-bold text-gray-800">แบบประเมิน</h2>
+          <p class="text-xs text-gray-500">ส่วนที่ <span id="current-section">1</span>/<span id="total-section">3</span></p>
+        </div>
+        <div class="w-10"></div>
+      </div>
+      <div class="mt-3 h-2 bg-gray-200 rounded-full overflow-hidden">
+        <div id="form-progress-bar" class="h-full bg-gradient-to-r from-cyan-500 to-teal-500 transition-all duration-300" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="w-full max-w-4xl mx-auto p-4 pb-32">
+
+    <!-- Section 1 -->
+    <div id="section-1" class="form-section">
+      <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-cyan-100">
+        <h3 class="text-lg font-bold text-gray-800 mb-1 flex items-center gap-2">
+          <span class="w-8 h-8 bg-cyan-100 text-cyan-600 rounded-lg flex items-center justify-center text-sm font-bold">1</span>
+          ส่วนที่ 1: แบบบันทึกข้อมูลส่วนบุคคล
+        </h3>
+        <p class="text-gray-500 text-sm ml-10">โปรดกรอกข้อมูลส่วนบุคคลของท่านให้ครบถ้วนและถูกต้อง</p>
+      </div>
+      <div class="space-y-4" id="personal-info-form">
+
+        <div class="question-item bg-white rounded-xl shadow p-4 border border-gray-100" data-question="gender">
+          <label class="block font-medium text-gray-800 mb-3">
+            <span class="inline-flex items-center justify-center w-6 h-6 bg-cyan-100 text-cyan-600 rounded-full text-xs font-bold mr-2">1</span>เพศ
+          </label>
+          <div class="flex flex-wrap gap-3 ml-8">
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="gender" value="male" class="w-5 h-5 text-cyan-600"><span>ชาย</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="gender" value="female" class="w-5 h-5 text-cyan-600"><span>หญิง</span></label>
+          </div>
+        </div>
+
+        <div class="question-item bg-white rounded-xl shadow p-4 border border-gray-100" data-question="age">
+          <label class="block font-medium text-gray-800 mb-3">
+            <span class="inline-flex items-center justify-center w-6 h-6 bg-cyan-100 text-cyan-600 rounded-full text-xs font-bold mr-2">2</span>อายุของท่าน (ปี)
+          </label>
+          <div class="ml-8">
+            <input type="number" name="age" min="20" max="80" placeholder="กรอกอายุ" class="w-32 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition-all">
+          </div>
+        </div>
+
+        <div class="question-item bg-white rounded-xl shadow p-4 border border-gray-100" data-question="marital_status">
+          <label class="block font-medium text-gray-800 mb-3">
+            <span class="inline-flex items-center justify-center w-6 h-6 bg-cyan-100 text-cyan-600 rounded-full text-xs font-bold mr-2">3</span>สถานภาพสมรสของท่าน
+          </label>
+          <div class="space-y-2 ml-8">
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="marital_status" value="single" class="w-5 h-5 text-cyan-600"><span>โสด</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="marital_status" value="married" class="w-5 h-5 text-cyan-600"><span>สมรส</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="marital_status" value="divorced" class="w-5 h-5 text-cyan-600"><span>หย่าร้าง</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="marital_status" value="widowed" class="w-5 h-5 text-cyan-600"><span>หม้าย</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="marital_status" value="separated" class="w-5 h-5 text-cyan-600"><span>แยก</span></label>
+            <div class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="marital_status" value="other" class="w-5 h-5 text-cyan-600"><span>อื่น ๆ</span>
+              <input type="text" name="marital_status_other" placeholder="ระบุ" class="px-3 py-2 border border-gray-200 rounded-lg text-sm" style="display:none;">
+            </div>
+          </div>
+        </div>
+
+        <div class="question-item bg-white rounded-xl shadow p-4 border border-gray-100" data-question="education">
+          <label class="block font-medium text-gray-800 mb-3">
+            <span class="inline-flex items-center justify-center w-6 h-6 bg-cyan-100 text-cyan-600 rounded-full text-xs font-bold mr-2">4</span>ระดับการศึกษาสูงสุด
+          </label>
+          <div class="space-y-2 ml-8">
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="education" value="bachelor" class="w-5 h-5 text-cyan-600"><span>ปริญญาตรี</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="education" value="master" class="w-5 h-5 text-cyan-600"><span>ปริญญาโท</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="education" value="doctorate" class="w-5 h-5 text-cyan-600"><span>ปริญญาเอก</span></label>
+          </div>
+        </div>
+
+        <div class="question-item bg-white rounded-xl shadow p-4 border border-gray-100" data-question="hospital_level">
+          <label class="block font-medium text-gray-800 mb-3">
+            <span class="inline-flex items-center justify-center w-6 h-6 bg-cyan-100 text-cyan-600 rounded-full text-xs font-bold mr-2">5</span>ระดับโรงพยาบาลที่ปฏิบัติงาน
+          </label>
+          <div class="space-y-2 ml-8">
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="hospital_level" value="community" class="w-5 h-5 text-cyan-600"><span>โรงพยาบาลชุมชน</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="hospital_level" value="general" class="w-5 h-5 text-cyan-600"><span>โรงพยาบาลทั่วไป</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="hospital_level" value="center" class="w-5 h-5 text-cyan-600"><span>โรงพยาบาลศูนย์</span></label>
+            <div class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="hospital_level" value="other" class="w-5 h-5 text-cyan-600"><span>อื่น ๆ</span>
+              <input type="text" name="hospital_level_other" placeholder="ระบุ" class="px-3 py-2 border border-gray-200 rounded-lg text-sm" style="display:none;">
+            </div>
+          </div>
+        </div>
+
+        <div class="question-item bg-white rounded-xl shadow p-4 border border-gray-100" data-question="position">
+          <label class="block font-medium text-gray-800 mb-3">
+            <span class="inline-flex items-center justify-center w-6 h-6 bg-cyan-100 text-cyan-600 rounded-full text-xs font-bold mr-2">6</span>ตำแหน่งงาน
+          </label>
+          <div class="space-y-2 ml-8">
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="position" value="head" class="w-5 h-5 text-cyan-600"><span>หัวหน้ากลุ่มงาน/หัวหน้างาน</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="position" value="chief_ward" class="w-5 h-5 text-cyan-600"><span>หัวหน้าหอผู้ป่วย/ศูนย์</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="position" value="deputy_chief" class="w-5 h-5 text-cyan-600"><span>รองหัวหน้าหอผู้ป่วย/ศูนย์</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="position" value="nurse" class="w-5 h-5 text-cyan-600"><span>พยาบาลวิชาชีพปฏิบัติงาน</span></label>
+            <div class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="position" value="other" class="w-5 h-5 text-cyan-600"><span>อื่น ๆ</span>
+              <input type="text" name="position_other" placeholder="ระบุ" class="px-3 py-2 border border-gray-200 rounded-lg text-sm" style="display:none;">
+            </div>
+          </div>
+        </div>
+
+        <div class="question-item bg-white rounded-xl shadow p-4 border border-gray-100" data-question="work_experience">
+          <label class="block font-medium text-gray-800 mb-3">
+            <span class="inline-flex items-center justify-center w-6 h-6 bg-cyan-100 text-cyan-600 rounded-full text-xs font-bold mr-2">7</span>ประสบการณ์การปฏิบัติงานการพยาบาลทั้งหมด (ปี)
+          </label>
+          <div class="ml-8">
+            <input type="number" name="work_experience" min="0" max="60" placeholder="กรอกจำนวนปี" class="w-32 px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition-all">
+          </div>
+        </div>
+
+        <div class="question-item bg-white rounded-xl shadow p-4 border border-gray-100" data-question="pc_experience">
+          <label class="block font-medium text-gray-800 mb-3">
+            <span class="inline-flex items-center justify-center w-6 h-6 bg-cyan-100 text-cyan-600 rounded-full text-xs font-bold mr-2">8</span>เคยมีประสบการณ์การดูแลผู้ป่วยแบบประคับประคองหรือไม่
+          </label>
+          <div class="flex flex-wrap gap-3 ml-8">
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="pc_experience" value="yes" class="w-5 h-5 text-cyan-600"><span>เคย</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="pc_experience" value="no" class="w-5 h-5 text-cyan-600"><span>ไม่เคย</span></label>
+          </div>
+        </div>
+
+        <div class="question-item bg-white rounded-xl shadow p-4 border border-gray-100" data-question="pc_training">
+          <label class="block font-medium text-gray-800 mb-3">
+            <span class="inline-flex items-center justify-center w-6 h-6 bg-cyan-100 text-cyan-600 rounded-full text-xs font-bold mr-2">9</span>เคยได้รับการอบรมการดูแลผู้ป่วยแบบประคับประคองหรือไม่
+          </label>
+          <div class="space-y-3 ml-8">
+            <div class="flex items-center gap-2">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="radio" name="pc_training" value="yes" class="w-5 h-5 text-cyan-600" onchange="document.querySelector('[name=training_course]').style.display='block'">
+                <span>เคย</span>
+              </label>
+            </div>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="pc_training" value="no" class="w-5 h-5 text-cyan-600" onchange="document.querySelector('[name=training_course]').style.display='none'">
+              <span>ไม่เคย</span>
+            </label>
+            <input type="text" name="training_course" placeholder="ถ้าเคย ระบุชื่อหลักสูตร" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100 outline-none transition-all" style="display:none;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div id="section-2" class="form-section hidden">
+      <div class="sticky-header bg-white/95 backdrop-blur-sm shadow-md">
+        <div class="max-w-4xl mx-auto p-4">
+          <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+            <span class="w-8 h-8 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center text-sm font-bold">2</span>
+            ส่วนที่ 2: แบบประเมินสมรรถนะการพยาบาลแบบประคับประคอง
+          </h3>
+          <p class="text-gray-600 text-sm mb-3">แบบประเมินนี้วัดระดับการรับรู้สมรรถนะของท่านในการให้การพยาบาลผู้ป่วยระยะประคับประคอง กรุณาประเมินความสามารถของท่านในแต่ละรายการตามความเป็นจริง</p>
+          <div class="space-y-2">
+            <p class="text-gray-500 text-xs font-semibold">คะแนนรวม 0-325</p>
+            <div class="flex flex-wrap gap-1">
+              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-gray-300 rounded border border-gray-400 flex items-center justify-center text-xs font-bold text-white">0</div><span class="text-xs text-gray-600 text-center mt-1 w-12">ไม่มีความมั่นใจ</span></div>
+              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-red-300 rounded border border-red-400 flex items-center justify-center text-xs font-bold text-white">1</div><span class="text-xs text-gray-600 text-center mt-1 w-12">มั่นใจน้อยมาก</span></div>
+              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-orange-300 rounded border border-orange-400 flex items-center justify-center text-xs font-bold text-white">2</div><span class="text-xs text-gray-600 text-center mt-1 w-12">มั่นใจน้อย</span></div>
+              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-yellow-300 rounded border border-yellow-400 flex items-center justify-center text-xs font-bold text-gray-700">3</div><span class="text-xs text-gray-600 text-center mt-1 w-12">มั่นใจปานกลาง</span></div>
+              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-lime-300 rounded border border-lime-400 flex items-center justify-center text-xs font-bold text-gray-700">4</div><span class="text-xs text-gray-600 text-center mt-1 w-12">มั่นใจมาก</span></div>
+              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-green-400 rounded border border-green-500 flex items-center justify-center text-xs font-bold text-white">5</div><span class="text-xs text-gray-600 text-center mt-1 w-12">มั่นใจมากสุด</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 mt-4" id="competency-questions"></div>
+    </div>
+
+    <!-- Section 3 -->
+    <div id="section-3" class="form-section hidden">
+      <div class="sticky-header bg-white/95 backdrop-blur-sm shadow-md">
+        <div class="max-w-4xl mx-auto p-4">
+          <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+            <span class="w-8 h-8 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center text-sm font-bold">3</span>
+            ส่วนที่ 3: แบบสอบถามการดูแลยึดบุคคลเป็นศูนย์กลาง
+          </h3>
+          <p class="text-gray-600 text-sm mb-3">แบบสอบถามนี้มีวัตถุประสงค์เพื่อวัดระดับการดูแลที่เน้นผู้ป่วยเป็นศูนย์กลางภายในหน่วยงาน ตามประสบการณ์และการรับรู้ของบุคลากร กรุณาประเมินแต่ละรายการตามความเป็นจริง</p>
+          <div class="space-y-2">
+            <p class="text-gray-500 text-xs font-semibold">คะแนนรวม 13-65</p>
+            <div class="flex flex-wrap gap-1">
+              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-red-300 rounded border border-red-400 flex items-center justify-center text-xs font-bold text-white">1</div><span class="text-xs text-gray-600 text-center mt-1 w-12">ไม่เห็นด้วย อย่างยิ่ง</span></div>
+              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-orange-300 rounded border border-orange-400 flex items-center justify-center text-xs font-bold text-white">2</div><span class="text-xs text-gray-600 text-center mt-1 w-12">ไม่เห็นด้วย</span></div>
+              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-yellow-300 rounded border border-yellow-400 flex items-center justify-center text-xs font-bold text-gray-700">3</div><span class="text-xs text-gray-600 text-center mt-1 w-12">ไม่แน่ใจ</span></div>
+              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-lime-300 rounded border border-lime-400 flex items-center justify-center text-xs font-bold text-gray-700">4</div><span class="text-xs text-gray-600 text-center mt-1 w-12">เห็นด้วย</span></div>
+              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-green-400 rounded border border-green-500 flex items-center justify-center text-xs font-bold text-white">5</div><span class="text-xs text-gray-600 text-center mt-1 w-12">เห็นด้วย อย่างยิ่ง</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 mt-4" id="person-centered-questions"></div>
+    </div>
+
+    <!-- Section 4 -->
+    <div id="section-4" class="form-section hidden">
+      <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-rose-100">
+        <h3 class="text-lg font-bold text-gray-800 mb-1 flex items-center gap-2">
+          <span class="w-8 h-8 bg-rose-100 text-rose-600 rounded-lg flex items-center justify-center text-sm font-bold">4</span>
+          ส่วนที่ 4: ประสบการณ์การดูแลผู้ป่วยแบบประคับประคอง
+        </h3>
+        <p class="text-gray-500 text-sm ml-10">โปรดระบุจำนวนประมาณของผู้ป่วยที่ท่านได้ดูแลแบบประคับประคอง</p>
+      </div>
+      <div class="space-y-4">
+        <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+          <label class="block font-medium text-gray-800 mb-3">
+            <span class="inline-flex items-center justify-center w-6 h-6 bg-rose-100 text-rose-600 rounded-full text-xs font-bold mr-2">1</span>
+            ผู้ป่วยกลุ่มโรคมะเร็ง จำนวนทั้งหมด (ประมาณ)
+          </label>
+          <div class="flex items-center gap-3 ml-8">
+            <input type="number" id="cancer-patients" name="cancer_patients" min="0" placeholder="กรอกจำนวนคน (หรือ 0)" class="flex-1 max-w-xs px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-rose-500 focus:ring-2 focus:ring-rose-100 outline-none transition-all">
+            <span class="text-gray-600 font-medium">คน</span>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow p-6 border border-gray-100">
+          <label class="block font-medium text-gray-800 mb-3">
+            <span class="inline-flex items-center justify-center w-6 h-6 bg-rose-100 text-rose-600 rounded-full text-xs font-bold mr-2">2</span>
+            ผู้ป่วยไม่ใช่กลุ่มโรคมะเร็ง จำนวนทั้งหมด (ประมาณ)
+          </label>
+          <div class="flex items-center gap-3 ml-8">
+            <input type="number" id="non-cancer-patients" name="non_cancer_patients" min="0" placeholder="กรอกจำนวนคน (หรือ 0)" class="flex-1 max-w-xs px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-rose-500 focus:ring-2 focus:ring-rose-100 outline-none transition-all">
+            <span class="text-gray-600 font-medium">คน</span>
+          </div>
+        </div>
+        <p class="text-gray-400 text-xs ml-8 mt-4">หมายเหตุ: ถ้าไม่มีใส่ 0</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fixed bottom nav -->
+  <div class="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-t border-gray-200 p-4 z-40">
+    <div class="max-w-4xl mx-auto flex gap-3">
+      <button id="prev-section-btn" class="flex-1 py-4 bg-gray-100 text-gray-700 font-semibold rounded-xl hover:bg-gray-200 transition-all hidden">ย้อนกลับ</button>
+      <button id="next-section-btn" class="flex-1 py-4 bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all">ถัดไป</button>
+      <button id="submit-btn" class="flex-1 py-4 bg-gradient-to-r from-emerald-600 to-green-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all hidden">ส่งแบบประเมิน</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD PAGE ===== -->
+<div id="dashboard-page" class="hidden w-full min-h-full p-4 pb-8">
   <div class="max-w-4xl mx-auto">
-    <!-- Header -->
-    <div class="flex items-center gap-3 pt-4 mb-6">
-      <button onclick="showTimeline()" class="bg-white/20 text-white p-2 rounded-xl hover:bg-white/30 transition">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-      </button>
-      <div>
-        <h2 class="text-white font-bold text-xl">ผลการประเมินทั้งหมด</h2>
-        <p class="text-teal-100 text-sm">เลขที่ใบอนุญาต: <span id="dash-license" class="font-semibold"></span></p>
+    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-purple-100">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-gray-800">ผลลัพธ์ภาพรวม</h2>
+          <p class="text-gray-500 text-sm mt-1">เลขที่ใบประกอบ: <span id="dashboard-license" class="font-medium text-purple-600"></span></p>
+        </div>
+        <button id="back-to-timeline-from-dashboard" class="p-2 text-gray-400 hover:text-purple-600 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
       </div>
     </div>
 
-    <!-- Chart card -->
-    <div class="bg-white rounded-2xl shadow-lg p-6 mb-4">
-      <h3 class="font-bold text-gray-800 text-lg mb-1">กราฟเปรียบเทียบคะแนน</h3>
-      <p class="text-gray-500 text-sm mb-4">Pre-test → Post-test 1 → Post-test 2</p>
-      <canvas id="result-chart" class="max-h-64"></canvas>
+    <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-100">
+      <h3 class="font-bold text-gray-800 mb-4">กราฟแสดงพัฒนาการ</h3>
+      <div class="relative" style="height:350px;"><canvas id="results-chart"></canvas></div>
+      <p class="text-center text-sm text-gray-500 mt-4">ขอบคุณสำหรับการประเมิน</p>
     </div>
 
-    <!-- Score table -->
-    <div class="bg-white rounded-2xl shadow-lg p-6 mb-4 overflow-x-auto">
-      <h3 class="font-bold text-gray-800 text-lg mb-4">ตารางสรุปคะแนน</h3>
-      <table class="w-full text-sm border-collapse min-w-[500px]">
-        <thead>
-          <tr class="bg-gray-50">
-            <th class="py-3 px-4 text-left font-semibold text-gray-600 border-b">รอบ</th>
-            <th class="py-3 px-4 text-left font-semibold text-gray-600 border-b">วันที่</th>
-            <th class="py-3 px-4 text-center font-semibold text-orange-700 border-b">ส่วนที่ 2<br><span class="font-normal text-xs text-gray-500">(0–325)</span></th>
-            <th class="py-3 px-4 text-center font-semibold text-purple-700 border-b">ส่วนที่ 3<br><span class="font-normal text-xs text-gray-500">(13–65)</span></th>
-          </tr>
-        </thead>
-        <tbody id="score-table-body"></tbody>
-      </table>
+    <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 mb-6">
+      <div class="p-4 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-100">
+        <h3 class="font-bold text-gray-800">ตารางสรุปคะแนน</h3>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">รายการ</th>
+              <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">Pre-test</th>
+              <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">Post-test 1</th>
+              <th class="px-4 py-3 text-center text-sm font-semibold text-gray-700">Post-test 2</th>
+            </tr>
+          </thead>
+          <tbody id="score-table-body"></tbody>
+        </table>
+      </div>
     </div>
 
-    <!-- Personal info summary -->
-    <div class="bg-white rounded-2xl shadow-lg p-6 mb-4">
-      <h3 class="font-bold text-gray-800 text-lg mb-4">ข้อมูลส่วนบุคคล</h3>
-      <div id="personal-summary" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm"></div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+      <div id="s2-interpretation" class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl shadow-lg p-6 border border-amber-200"></div>
+      <div id="s3-interpretation" class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-lg p-6 border border-purple-200"></div>
     </div>
 
-    <!-- Patient data -->
-    <div id="patient-data-card" class="hidden bg-white rounded-2xl shadow-lg p-6 mb-4">
-      <h3 class="font-bold text-gray-800 text-lg mb-4">ประสบการณ์การดูแลผู้ป่วย (Post-test 2)</h3>
-      <div id="patient-summary" class="grid grid-cols-2 gap-4 text-sm"></div>
+    <div id="patient-experience-card" class="hidden bg-gradient-to-br from-rose-50 to-red-50 rounded-2xl shadow-lg p-6 border border-rose-200 mb-6">
+      <h3 class="font-bold text-gray-800 mb-4">ประสบการณ์การดูแลผู้ป่วยแบบประคับประคอง</h3>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-white rounded-xl p-4 border border-rose-100">
+          <p class="text-sm text-gray-600">ผู้ป่วยมะเร็ง</p>
+          <p id="cancer-count" class="text-2xl font-bold text-rose-600 mt-2">-</p>
+          <p class="text-xs text-gray-500 mt-1">คน</p>
+        </div>
+        <div class="bg-white rounded-xl p-4 border border-rose-100">
+          <p class="text-sm text-gray-600">ผู้ป่วยไม่ใช่มะเร็ง</p>
+          <p id="non-cancer-count" class="text-2xl font-bold text-rose-600 mt-2">-</p>
+          <p class="text-xs text-gray-500 mt-1">คน</p>
+        </div>
+      </div>
+      <div class="mt-4 p-3 bg-white rounded-lg border border-rose-100">
+        <p class="text-sm font-medium text-gray-700">รวมทั้งหมด: <span id="total-patients" class="text-rose-600 font-bold">-</span> คน</p>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
+      <h3 class="font-bold text-gray-800 mb-4">ข้อมูลส่วนบุคคล</h3>
+      <div id="personal-info-summary" class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm"></div>
     </div>
   </div>
 </div>
 
-<!-- ======================================================
-     SCRIPT
-     ====================================================== -->
-<script>
-// ================================================================
-// ⚠️  ตั้งค่า URL ของ Google Apps Script Web App ที่ deploy แล้ว
-// ================================================================
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUFNrfGZfEn0tYI01VOgkfMpyavnGgBKMAWuitemMsahfgZQmKZNWxcQwn_h3bNAZ2/exec';
-// ================================================================
+<!-- Modal -->
+<div id="modal-overlay" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 transform transition-all">
+    <div id="modal-icon" class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"></div>
+    <h3 id="modal-title" class="text-xl font-bold text-center text-gray-800 mb-2"></h3>
+    <p id="modal-message" class="text-gray-500 text-center text-sm mb-6 whitespace-pre-wrap leading-relaxed"></p>
+    <button id="modal-close-btn" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-teal-600 text-white font-semibold rounded-xl">ตกลง</button>
+  </div>
+</div>
 
-// ── Questions ──────────────────────────────────────────────────
+</div><!-- #app -->
+<script>
+// ====================================================================
+// ⚠️  ตั้งค่า URL ของ Google Apps Script Web App ที่นี่
+// ====================================================================
+const SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec';
+// ====================================================================
+
+// ==================== COMPETENCY QUESTIONS (65) ====================
 const competencyQuestions = [
   "ท่านประเมินอาการปวดในผู้ป่วยระยะประคับประคองโดยพิจารณาองค์ประกอบต่อไปนี้ทั้งหมด : ลักษณะ  ระยะเวลา  ตำแหน่ง  ความรุนแรง  ปัจจัยกระตุ้นและปัจจัยบรรเทา",
   "ท่านประเมินอาการปวดในผู้ป่วยระยะประคับประคองที่ไม่สามารถสื่อสารได้",
@@ -410,6 +589,7 @@ const competencyQuestions = [
   "ท่านใช้ทักษะการสื่อสารเชิงบำบัดในการดูแลผู้ป่วยและครอบครัวอย่างมีประสิทธิผล"
 ];
 
+// ==================== PERSON-CENTERED QUESTIONS (13) ====================
 const personCenteredQuestions = [
   "เรามักพูดคุยกันอยู่เสมอเกี่ยวกับวิธีการให้การดูแลที่เน้นผู้ป่วยเป็นศูนย์กลาง",
   "เรามีการประชุมทีมอย่างเป็นทางการเพื่อหารือเกี่ยวกับการดูแลผู้ป่วย",
@@ -426,91 +606,158 @@ const personCenteredQuestions = [
   "ผู้ป่วยในหน่วยงานของท่านสามารถเข้าถึงพื้นที่กลางภายนอกได้ตามที่ต้องการ"
 ];
 
-// ── State ──────────────────────────────────────────────────────
-let currentUser  = null;
+// ==================== STATE ====================
+let currentUser = null;
 let currentRound = null;
 let currentSection = 1;
-let totalSections  = 3;
-let formAnswers = { section1: {}, section2: new Array(65).fill(null), section3: new Array(13).fill(null), section4: {} };
-let chartInstance = null;
+let formAnswers = { section1: {}, section2: [], section3: [], section4: {} };
+let resultsChart = null;
 
-// ── API ────────────────────────────────────────────────────────
+// ==================== API ====================
 async function apiGet(license) {
-  const url = `${SCRIPT_URL}?action=get&license=${encodeURIComponent(license)}`;
-  const r = await fetch(url);
-  return r.json();
+  try {
+    const url = SCRIPT_URL + '?action=get&license=' + encodeURIComponent(license);
+    const r = await fetch(url);
+    const json = await r.json();
+    return Array.isArray(json) ? json : [];
+  } catch(e) { return []; }
 }
+
 async function apiCreate(data) {
-  const url = `${SCRIPT_URL}?action=create&data=${encodeURIComponent(JSON.stringify(data))}`;
+  const url = SCRIPT_URL + '?action=create&data=' + encodeURIComponent(JSON.stringify(data));
   const r = await fetch(url);
   return r.json();
 }
 
-// ── Login ──────────────────────────────────────────────────────
+// ==================== UTILITY ====================
+function showToast(message, type = 'info') {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  const colors = { success:'bg-emerald-500', error:'bg-red-500', info:'bg-cyan-500', warning:'bg-amber-500' };
+  toast.className = `toast ${colors[type]} text-white px-6 py-3 rounded-xl shadow-lg flex items-center gap-2`;
+  const icons = {
+    success: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>',
+    error:   '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>',
+    info:    '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
+    warning: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>'
+  };
+  toast.innerHTML = `<svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">${icons[type]||icons.info}</svg><span>${message}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
+function showModal(title, message, type = 'info') {
+  const overlay = document.getElementById('modal-overlay');
+  const iconDiv = document.getElementById('modal-icon');
+  const icons = {
+    success: { bg:'bg-emerald-100', color:'text-emerald-600', path:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' },
+    error:   { bg:'bg-red-100',     color:'text-red-600',     path:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>' },
+    info:    { bg:'bg-cyan-100',    color:'text-cyan-600',    path:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>' },
+    warning: { bg:'bg-amber-100',   color:'text-amber-600',   path:'<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>' }
+  };
+  const icon = icons[type] || icons.info;
+  iconDiv.className = `w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${icon.bg}`;
+  iconDiv.innerHTML = `<svg class="w-8 h-8 ${icon.color}" fill="none" stroke="currentColor" viewBox="0 0 24 24">${icon.path}</svg>`;
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-message').textContent = message;
+  overlay.classList.remove('hidden');
+}
+function hideModal() { document.getElementById('modal-overlay').classList.add('hidden'); }
+
+function formatDate(date) {
+  if (!date) return '-';
+  return new Date(date).toLocaleDateString('th-TH', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+function getInterpretation(section, score) {
+  if (section === 2) {
+    if (score < 81.25)  return { level:'น้อยมาก', color:'text-red-600',    bg:'bg-red-50' };
+    if (score < 162.5)  return { level:'น้อย',     color:'text-orange-600', bg:'bg-orange-50' };
+    if (score < 243.75) return { level:'ปานกลาง',  color:'text-amber-600',  bg:'bg-amber-50' };
+    return { level:'มาก', color:'text-emerald-600', bg:'bg-emerald-50' };
+  } else {
+    if (score < 16.25)  return { level:'น้อยมาก', color:'text-red-600',    bg:'bg-red-50' };
+    if (score < 32.5)   return { level:'น้อย',     color:'text-orange-600', bg:'bg-orange-50' };
+    if (score < 48.75)  return { level:'ปานกลาง',  color:'text-amber-600',  bg:'bg-amber-50' };
+    return { level:'มาก', color:'text-emerald-600', bg:'bg-emerald-50' };
+  }
+}
+
+// ==================== PAGE NAV ====================
+function showPage(pageId) {
+  document.querySelectorAll('#app > div[id$="-page"]').forEach(p => p.classList.add('hidden'));
+  const page = document.getElementById(pageId);
+  if (page) { page.classList.remove('hidden'); page.scrollTo ? page.scrollTo(0,0) : window.scrollTo(0,0); }
+}
+
+// ==================== LOGIN ====================
+function initLogin() {
+  const input = document.getElementById('license-input');
+  input.addEventListener('input', e => {
+    e.target.value = e.target.value.replace(/\D/g,'').slice(0,10);
+    document.getElementById('license-error').classList.add('hidden');
+  });
+  document.getElementById('login-btn').addEventListener('click', handleLogin);
+  input.addEventListener('keypress', e => { if (e.key === 'Enter') handleLogin(); });
+}
+
 async function handleLogin() {
-  const license = document.getElementById('license-input').value.trim();
-  if (!/^\d{10}$/.test(license)) {
-    showToast('กรุณากรอกเลขที่ใบอนุญาต 10 หลัก', 'warning');
-    document.getElementById('license-input').classList.add('error-highlight');
+  const input = document.getElementById('license-input');
+  const licenseNumber = input.value.trim();
+  if (licenseNumber.length !== 10) {
+    document.getElementById('license-error').classList.remove('hidden');
+    input.classList.add('error-highlight');
+    setTimeout(() => input.classList.remove('error-highlight'), 1000);
     return;
   }
-  document.getElementById('license-input').classList.remove('error-highlight');
-  setLoginLoading(true);
+  const btn = document.getElementById('login-btn');
+  btn.textContent = 'กำลังโหลด...';
+  btn.disabled = true;
   try {
-    const records = await apiGet(license);
-    initUser(license, records);
-    document.getElementById('login-page').classList.add('hidden');
-    showTimeline();
+    const records = await apiGet(licenseNumber);
+    buildUserFromRecords(licenseNumber, records);
   } catch(e) {
-    showToast('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาลองใหม่', 'error');
-  } finally {
-    setLoginLoading(false);
+    buildUserFromRecords(licenseNumber, []);
+    showToast('ไม่สามารถเชื่อมต่อ server ข้อมูลอาจไม่ถูกบันทึก', 'warning');
   }
-}
-function setLoginLoading(on) {
-  document.getElementById('login-btn-text').textContent = on ? 'กำลังโหลด...' : 'เข้าสู่ระบบ';
-  document.getElementById('login-spinner').classList.toggle('hidden', !on);
-}
-function logout() {
-  currentUser = null;
-  document.getElementById('license-input').value = '';
-  showPage('login-page');
+  btn.textContent = 'เข้าสู่ระบบ';
+  btn.disabled = false;
+  showTimeline();
 }
 
-// ── User init ──────────────────────────────────────────────────
-function initUser(license, records) {
+function buildUserFromRecords(licenseNumber, records) {
   currentUser = {
-    licenseNumber: license,
-    personalInfo: {},
+    licenseNumber,
+    personalInfo: null,
     rounds: {
-      pre:   { completed: false, date: null, scores: { section2: 0, section3: 0 }, patients: null },
-      post1: { completed: false, date: null, scores: { section2: 0, section3: 0 }, patients: null },
-      post2: { completed: false, date: null, scores: { section2: 0, section3: 0 }, patients: { cancer: 0, nonCancer: 0 } }
+      pre:   { completed:false, date:null, scores:{section2:0,section3:0}, patients:{cancer:0,non_cancer:0} },
+      post1: { completed:false, date:null, scores:{section2:0,section3:0}, patients:{cancer:0,non_cancer:0} },
+      post2: { completed:false, date:null, scores:{section2:0,section3:0}, patients:{cancer:0,non_cancer:0} }
     }
   };
-  records.forEach(rec => {
-    const r = rec.round;
-    if (!['pre','post1','post2'].includes(r)) return;
-    currentUser.rounds[r].completed = true;
-    currentUser.rounds[r].date = rec.assessment_date;
-    currentUser.rounds[r].scores.section2 = Number(rec.section2_score) || 0;
-    currentUser.rounds[r].scores.section3 = Number(rec.section3_score) || 0;
-    if (r === 'pre') {
-      currentUser.personalInfo = {
-        gender: rec.gender, age: rec.age, marital_status: rec.marital_status,
-        education: rec.education, hospital_level: rec.hospital_level,
-        position: rec.position, work_experience: rec.work_experience,
-        pc_experience: rec.pc_experience, pc_training: rec.pc_training,
-        training_course: rec.training_course
-      };
-    }
-    if (r === 'post2') {
-      currentUser.rounds.post2.patients = { cancer: rec.cancer_patients, nonCancer: rec.non_cancer_patients };
-    }
+  if (records.length > 0) {
+    const r = records[0];
+    currentUser.personalInfo = {
+      gender:r.gender, age:r.age, marital_status:r.marital_status,
+      education:r.education, hospital_level:r.hospital_level,
+      position:r.position, work_experience:r.work_experience,
+      pc_experience:r.pc_experience, pc_training:r.pc_training,
+      training_course:r.training_course
+    };
+  }
+  records.forEach(record => {
+    const rnd = record.round;
+    if (!['pre','post1','post2'].includes(rnd)) return;
+    currentUser.rounds[rnd] = {
+      completed: true,
+      date: record.assessment_date,
+      scores: { section2: Number(record.section2_score)||0, section3: Number(record.section3_score)||0 },
+      patients: { cancer: Number(record.cancer_patients)||0, non_cancer: Number(record.non_cancer_patients)||0 }
+    };
   });
 }
 
-// ── Timeline ───────────────────────────────────────────────────
+// ==================== TIMELINE ====================
 function showTimeline() {
   showPage('timeline-page');
   document.getElementById('display-license').textContent = currentUser.licenseNumber;
@@ -518,597 +765,448 @@ function showTimeline() {
 }
 
 function updateTimelineCards() {
-  const rounds = [
-    { key:'pre',   label:'Pre-test',   sub:'ก่อนอบรม',           color:'cyan',   icon:'📝', gradient:'from-cyan-400 to-teal-500' },
-    { key:'post1', label:'Post-test 1', sub:'หลังอบรม 5 วัน',    color:'amber',  icon:'📋', gradient:'from-amber-400 to-orange-500' },
-    { key:'post2', label:'Post-test 2', sub:'ติดตามผล 3 เดือน',  color:'emerald',icon:'✅', gradient:'from-emerald-400 to-green-600' }
-  ];
-  const container = document.getElementById('timeline-cards');
-  container.innerHTML = '';
-  rounds.forEach((rd, idx) => {
-    const rData = currentUser.rounds[rd.key];
-    const prevDone = idx === 0 || currentUser.rounds[rounds[idx-1].key].completed;
-    const locked = !prevDone;
-    const done   = rData.completed;
-    const status = done ? 'เสร็จสิ้น' : (prevDone ? 'รอดำเนินการ' : 'ล็อค');
-    const statusCls = done ? 'bg-green-100 text-green-700' : (prevDone ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-500');
-    const s2 = done ? rData.scores.section2 : 0;
-    const s3 = done ? rData.scores.section3 : 0;
-    const pct = done ? Math.round(((s2/325)+(s3/65))/2*100) : 0;
-    const dateStr = done ? formatDate(rData.date) : '';
-    const card = document.createElement('div');
-    card.className = `bg-white rounded-2xl shadow-lg p-5 relative overflow-hidden transition ${locked ? 'card-locked' : ''}`;
-    card.innerHTML = `
-      <div class="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b ${rd.gradient} rounded-l-2xl"></div>
-      <div class="pl-3">
-        <div class="flex items-start justify-between mb-3">
-          <div class="flex items-center gap-3">
-            <span class="text-2xl">${rd.icon}</span>
-            <div>
-              <div class="flex items-center gap-2">
-                <h4 class="font-bold text-gray-800">${rd.label}</h4>
-                <span class="text-xs px-2 py-0.5 rounded-full font-medium ${statusCls}">${status}</span>
-              </div>
-              <p class="text-gray-500 text-sm">${rd.sub}</p>
-            </div>
-          </div>
-          ${locked ? `<span class="text-2xl">🔒</span>` : ''}
-        </div>
-        ${done ? `
-          <div class="grid grid-cols-2 gap-3 mb-3 text-sm">
-            <div class="bg-orange-50 rounded-xl p-3 text-center">
-              <div class="font-bold text-orange-700 text-lg">${s2}</div>
-              <div class="text-orange-500 text-xs">ส่วนที่ 2 / 325</div>
-            </div>
-            <div class="bg-purple-50 rounded-xl p-3 text-center">
-              <div class="font-bold text-purple-700 text-lg">${s3}</div>
-              <div class="text-purple-500 text-xs">ส่วนที่ 3 / 65</div>
-            </div>
-          </div>
-          <div class="bg-gray-100 rounded-full h-1.5 mb-2">
-            <div class="h-1.5 rounded-full bg-gradient-to-r ${rd.gradient}" style="width:${pct}%"></div>
-          </div>
-          <p class="text-xs text-gray-400">ทำเมื่อ ${dateStr}</p>
-        ` : !locked ? `
-          <button onclick="startAssessment('${rd.key}')"
-            class="w-full bg-gradient-to-r ${rd.gradient} text-white py-3 rounded-xl font-semibold text-sm hover:opacity-90 transition mt-2">
-            เริ่มประเมิน →
-          </button>
-        ` : `<p class="text-sm text-gray-400 mt-2">ทำรอบก่อนหน้าให้เสร็จก่อน</p>`}
-      </div>
-    `;
-    container.appendChild(card);
+  const rounds = ['pre','post1','post2'];
+  rounds.forEach((round, index) => {
+    const card = document.querySelector(`.assessment-card[data-round="${round}"]`);
+    const status = card.querySelector('.status-badge');
+    const btn = card.querySelector('.start-btn');
+    const dateEl = card.querySelector('.completion-date');
+    const progressBar = card.querySelector('.progress-bar');
+    const cardContainer = card.querySelector('.bg-white');
+    const roundData = currentUser.rounds[round];
+    const prevRound = index > 0 ? rounds[index-1] : null;
+    const isUnlocked = !prevRound || currentUser.rounds[prevRound].completed;
+
+    card.classList.toggle('card-locked', !isUnlocked);
+    cardContainer.classList.remove('border-cyan-200','border-amber-200','border-emerald-200','border-gray-200');
+    const borderClasses = ['border-cyan-200','border-amber-200','border-emerald-200'];
+    cardContainer.classList.add(isUnlocked ? borderClasses[index] : 'border-gray-200');
+
+    if (roundData.completed) {
+      status.textContent = 'เสร็จสิ้น';
+      status.className = 'status-badge px-3 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-600';
+      btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+      btn.className = 'start-btn p-3 bg-emerald-100 text-emerald-600 rounded-xl';
+      btn.disabled = true;
+      dateEl.classList.remove('hidden');
+      dateEl.querySelector('span').textContent = formatDate(roundData.date);
+      progressBar.style.width = '100%';
+    } else if (isUnlocked) {
+      status.textContent = 'ยังไม่ทำ';
+      status.className = 'status-badge px-3 py-1 rounded-full text-xs font-medium bg-cyan-100 text-cyan-600';
+      btn.textContent = 'เริ่มทำ';
+      btn.className = 'start-btn px-6 py-3 bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all active:scale-95';
+      btn.disabled = false;
+      btn.onclick = () => startAssessment(round);
+      dateEl.classList.add('hidden');
+      progressBar.style.width = '0%';
+    } else {
+      status.textContent = 'รอปลดล็อค';
+      status.className = 'status-badge px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600';
+      btn.innerHTML = `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>`;
+      btn.className = 'start-btn px-6 py-3 bg-gray-300 text-gray-500 font-medium rounded-xl cursor-not-allowed';
+      btn.disabled = true;
+      dateEl.classList.add('hidden');
+      progressBar.style.width = '0%';
+    }
   });
-  const allDone = ['pre','post1','post2'].every(k => currentUser.rounds[k].completed);
-  document.getElementById('dashboard-btn-wrap').classList.toggle('hidden', !allDone);
+  const allCompleted = rounds.every(r => currentUser.rounds[r].completed);
+  document.getElementById('dashboard-btn-container').classList.toggle('hidden', !allCompleted);
 }
 
-// ── Form ───────────────────────────────────────────────────────
+// ==================== FORM ====================
 function startAssessment(round) {
   currentRound = round;
-  formAnswers = { section1:{}, section2:new Array(65).fill(null), section3:new Array(13).fill(null), section4:{} };
-  currentSection = (round === 'pre' && !currentUser.rounds.pre.completed) ? 1 : 2;
-  // If personal info already saved, skip section 1
-  if (round !== 'pre' || currentUser.rounds.pre.completed) currentSection = 2;
+  currentSection = currentUser.personalInfo ? 2 : 1;
+  formAnswers = { section1:{}, section2:[], section3:[], section4:{} };
+  if (currentUser.personalInfo) formAnswers.section1 = { ...currentUser.personalInfo };
 
-  const labels = { pre:'Pre-test (ก่อนอบรม)', post1:'Post-test 1 (หลังอบรม 5 วัน)', post2:'Post-test 2 (ติดตามผล 3 เดือน)' };
-  document.getElementById('form-round-label').textContent = labels[round];
-  totalSections = round === 'post2' ? 4 : 3;
-  if (round !== 'pre' || currentUser.rounds.pre.completed) totalSections -= 1;
+  const titles = { pre:'Pre-test', post1:'Post-test 1', post2:'Post-test 2' };
+  document.getElementById('form-title').textContent = `แบบประเมิน ${titles[currentRound]}`;
+  const totalSec = (currentUser.personalInfo ? 0 : 1) + 2 + (currentRound === 'post2' ? 1 : 0);
+  document.getElementById('total-section').textContent = totalSec;
 
-  buildPersonalInfoForm();
-  buildS2Questions();
-  buildS3Questions();
   showPage('form-page');
+  generateQuestions();
   showSection(currentSection);
   updateFormProgress();
 }
 
-function buildPersonalInfoForm() {
-  const el = document.getElementById('personal-info-form');
-  el.innerHTML = `
-    ${radioField('gender','เพศ',[['ชาย','ชาย'],['หญิง','หญิง']])}
-    ${numField('age','อายุ (ปี)','20','80')}
-    ${radioField('marital_status','สถานภาพสมรส',[['โสด','โสด'],['สมรส','สมรส'],['หม้าย/หย่า','หม้าย/หย่า']])}
-    ${radioField('education','ระดับการศึกษา',[['ปริญญาตรี','ปริญญาตรี'],['ปริญญาโท','ปริญญาโท'],['ปริญญาเอก','ปริญญาเอก']])}
-    ${radioField('hospital_level','ระดับโรงพยาบาล',[['M','M'],['S','S'],['A','A']])}
-    ${textField('position','ตำแหน่งงาน','เช่น พยาบาลวิชาชีพ')}
-    ${numField('work_experience','ประสบการณ์ทำงาน (ปี)','0','60')}
-    ${numField('pc_experience','ประสบการณ์ดูแล PC (ปี)','0','60')}
-    ${radioField('pc_training','เคยผ่านการอบรม PC มาก่อน',[['เคย','เคย'],['ไม่เคย','ไม่เคย']])}
-    <div id="training-course-wrap" class="hidden">
-      ${textField('training_course','ชื่อหลักสูตรที่อบรม','')}
-    </div>
-  `;
-  // Show training course field when "เคย" selected
-  el.querySelectorAll('input[name="pc_training"]').forEach(r => {
-    r.addEventListener('change', () => {
-      const wrap = document.getElementById('training-course-wrap');
-      wrap.classList.toggle('hidden', r.value !== 'เคย');
-      if (r.value !== 'เคย') delete formAnswers.section1.training_course;
-    });
-  });
-  // Bind all inputs
-  el.querySelectorAll('input').forEach(inp => {
-    inp.addEventListener('change', () => updateSection1Answer(inp));
-    inp.addEventListener('input', () => updateSection1Answer(inp));
-  });
-}
-
-function radioField(name, label, opts) {
-  return `<div id="field-${name}" class="border-2 border-gray-100 rounded-xl p-4">
-    <p class="text-sm font-semibold text-gray-700 mb-3">${label} <span class="text-red-500">*</span></p>
-    <div class="flex flex-wrap gap-2">
-      ${opts.map(([val,txt]) => `
-        <label class="flex items-center gap-2 cursor-pointer bg-gray-50 hover:bg-teal-50 px-4 py-2 rounded-xl border-2 border-transparent hover:border-teal-300 transition has-[:checked]:bg-teal-50 has-[:checked]:border-teal-400">
-          <input type="radio" name="${name}" value="${val}" class="accent-teal-500">
-          <span class="text-sm text-gray-700">${txt}</span>
-        </label>`).join('')}
-    </div>
-  </div>`;
-}
-function textField(name, label, placeholder) {
-  return `<div id="field-${name}" class="border-2 border-gray-100 rounded-xl p-4">
-    <label class="text-sm font-semibold text-gray-700 mb-2 block">${label} <span class="text-red-500">*</span></label>
-    <input type="text" name="${name}" placeholder="${placeholder}" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-400 transition text-sm">
-  </div>`;
-}
-function numField(name, label, min, max) {
-  return `<div id="field-${name}" class="border-2 border-gray-100 rounded-xl p-4">
-    <label class="text-sm font-semibold text-gray-700 mb-2 block">${label} <span class="text-red-500">*</span></label>
-    <input type="number" name="${name}" min="${min}" max="${max}" placeholder="${min}–${max}" class="w-full border-2 border-gray-200 rounded-xl px-4 py-2.5 focus:outline-none focus:border-teal-400 transition text-sm">
-  </div>`;
-}
-
-function updateSection1Answer(inp) {
-  const name = inp.name;
-  if (inp.type === 'radio') {
-    if (inp.checked) formAnswers.section1[name] = inp.value;
-  } else {
-    formAnswers.section1[name] = inp.value;
-  }
-  updateFormProgress();
-}
-
-function buildS2Questions() {
-  const el = document.getElementById('s2-questions');
-  el.innerHTML = competencyQuestions.map((q, i) => `
-    <div id="s2-row-${i}" class="rounded-xl p-4 border-2 border-transparent ${i%2===0?'bg-teal-50':'bg-white'}">
-      <p class="text-sm text-gray-700 mb-3 font-medium"><span class="text-teal-600 font-bold">${i+1}.</span> ${q}</p>
-      <div class="flex flex-wrap gap-2">
-        ${[0,1,2,3,4,5].map(v => `
-          <button type="button" class="s2-btn s2-${v}" data-q="${i}" data-val="${v}" onclick="selectS2(this)">${v}</button>
-        `).join('')}
+function generateQuestions() {
+  // Section 2
+  document.getElementById('competency-questions').innerHTML = competencyQuestions.map((q,i) => {
+    const cv = formAnswers.section2[i];
+    return `<div class="question-row zebra-row p-4 border-b border-gray-100" data-question="s2_${i}">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div class="flex-1">
+          <span class="inline-flex items-center justify-center w-8 h-8 bg-amber-100 text-amber-600 rounded-lg text-sm font-bold mr-2">${i+1}</span>
+          <span class="text-gray-700 text-sm">${q}</span>
+          ${cv !== undefined ? `<div class="score-preview">เลือก: ระดับ ${cv}</div>` : ''}
+        </div>
+        <div class="flex gap-1 justify-end flex-wrap min-w-fit">
+          ${[0,1,2,3,4,5].map(score => `<button type="button" class="likert-btn s2-${cv===score?score:'unselected'}" data-section="2" data-index="${i}" data-value="${score}" onclick="selectLikert(this)" title="${['ไม่มีความมั่นใจเลย','มั่นใจน้อยมาก','มั่นใจน้อย','มั่นใจปานกลาง','มั่นใจมาก','มั่นใจมากที่สุด'][score]}">${score}</button>`).join('')}
+        </div>
       </div>
-      <div id="s2-preview-${i}" class="score-preview"></div>
-    </div>
-  `).join('');
-}
+    </div>`;
+  }).join('');
 
-function selectS2(btn) {
-  const q = Number(btn.dataset.q);
-  const v = Number(btn.dataset.val);
-  formAnswers.section2[q] = v;
-  // Update UI
-  const row = document.getElementById(`s2-row-${q}`);
-  row.querySelectorAll('.s2-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  // Preview
-  const prev = document.getElementById(`s2-preview-${q}`);
-  const labels = ['ไม่มีประสบการณ์','ผู้เริ่มต้น (Novice)','ผู้เริ่มปฏิบัติ (Advanced Beginner)','ผู้มีสมรรถนะ (Competent)','ผู้ชำนาญ (Proficient)','ผู้เชี่ยวชาญ (Expert)'];
-  prev.textContent = `ระดับ ${v}: ${labels[v]}`;
-  prev.classList.add('show');
-  row.classList.remove('error-highlight');
-  updateFormProgress();
-}
-
-function buildS3Questions() {
-  const el = document.getElementById('s3-questions');
-  el.innerHTML = personCenteredQuestions.map((q, i) => `
-    <div id="s3-row-${i}" class="${i%2===0?'zebra-even':'zebra-odd'} rounded-xl p-4 border-2 border-transparent">
-      <p class="text-sm text-gray-700 mb-3 font-medium"><span class="text-purple-600 font-bold">${i+1}.</span> ${q}</p>
-      <div class="flex flex-wrap gap-2">
-        ${[1,2,3,4,5].map(v => `
-          <button type="button" class="s3-btn s3-${v}" data-q="${i}" data-val="${v}" onclick="selectS3(this)">${v}</button>
-        `).join('')}
+  // Section 3
+  document.getElementById('person-centered-questions').innerHTML = personCenteredQuestions.map((q,i) => {
+    const cv = formAnswers.section3[i];
+    return `<div class="question-row zebra-row p-4 border-b border-gray-100" data-question="s3_${i}">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+        <div class="flex-1">
+          <span class="inline-flex items-center justify-center w-8 h-8 bg-purple-100 text-purple-600 rounded-lg text-sm font-bold mr-2">${i+1}</span>
+          <span class="text-gray-700 text-sm">${q}</span>
+          ${cv !== undefined ? `<div class="score-preview">เลือก: ระดับ ${cv}</div>` : ''}
+        </div>
+        <div class="flex gap-1 justify-end flex-wrap min-w-fit">
+          ${[1,2,3,4,5].map(score => `<button type="button" class="likert-btn s3-${cv===score?score:'unselected'}" data-section="3" data-index="${i}" data-value="${score}" onclick="selectLikert(this)" title="${['','ไม่เห็นด้วยอย่างยิ่ง','ไม่เห็นด้วย','ไม่แน่ใจ','เห็นด้วย','เห็นด้วยอย่างยิ่ง'][score]}">${score}</button>`).join('')}
+        </div>
       </div>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 }
 
-function selectS3(btn) {
-  const q = Number(btn.dataset.q);
-  const v = Number(btn.dataset.val);
-  formAnswers.section3[q] = v;
-  const row = document.getElementById(`s3-row-${q}`);
-  row.querySelectorAll('.s3-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  row.classList.remove('error-highlight');
+function selectLikert(btn) {
+  const section = parseInt(btn.dataset.section);
+  const index   = parseInt(btn.dataset.index);
+  const value   = parseInt(btn.dataset.value);
+  btn.closest('.question-row').classList.remove('error-highlight');
+  btn.parentElement.querySelectorAll('.likert-btn').forEach(b => {
+    b.classList.remove('s2-0','s2-1','s2-2','s2-3','s2-4','s2-5','s3-1','s3-2','s3-3','s3-4','s3-5','s2-unselected','s3-unselected');
+    b.classList.add(section === 2 ? 's2-unselected' : 's3-unselected');
+  });
+  btn.classList.remove('s2-unselected','s3-unselected');
+  btn.classList.add(section === 2 ? `s2-${value}` : `s3-${value}`);
+  if (section === 2) formAnswers.section2[index] = value;
+  else formAnswers.section3[index] = value;
+  const levels = {
+    s2: ['ไม่มีความมั่นใจเลย','มั่นใจน้อยมาก','มั่นใจน้อย','มั่นใจปานกลาง','มั่นใจมาก','มั่นใจมากที่สุด'],
+    s3: ['','ไม่เห็นด้วยอย่างยิ่ง','ไม่เห็นด้วย','ไม่แน่ใจ','เห็นด้วย','เห็นด้วยอย่างยิ่ง']
+  };
+  const sp = btn.closest('.question-row').querySelector('.score-preview');
+  if (sp) sp.textContent = `เลือก: ระดับ ${value} - ${section===2?levels.s2[value]:levels.s3[value]}`;
   updateFormProgress();
 }
 
-// ── Section navigation ─────────────────────────────────────────
-function showSection(num) {
-  [1,2,3,4].forEach(n => document.getElementById(`section-${n}`).classList.add('hidden'));
-  document.getElementById(`section-${num}`).classList.remove('hidden');
-  currentSection = num;
-  // Determine which sections exist
-  const hasSec1 = currentRound === 'pre' && !currentUser.rounds.pre.completed;
-  const hasSec4 = currentRound === 'post2';
-  const sections = [];
-  if (hasSec1) sections.push(1);
-  sections.push(2, 3);
-  if (hasSec4) sections.push(4);
-  const idx = sections.indexOf(num);
-  const isFirst = idx === 0;
-  const isLast  = idx === sections.length - 1;
-  document.getElementById('btn-prev').classList.toggle('hidden', isFirst);
-  document.getElementById('btn-next').classList.toggle('hidden', isLast);
-  document.getElementById('btn-submit').classList.toggle('hidden', !isLast);
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+function showSection(sectionNum) {
+  currentSection = sectionNum;
+  document.getElementById('current-section').textContent = sectionNum;
+  document.querySelectorAll('.form-section').forEach((s,i) => s.classList.toggle('hidden', i+1 !== sectionNum));
+  const startSection  = currentUser.personalInfo ? 2 : 1;
+  const totalSections = (currentUser.personalInfo ? 0 : 1) + 2 + (currentRound === 'post2' ? 1 : 0);
+  document.getElementById('prev-section-btn').classList.toggle('hidden', sectionNum <= startSection);
+  document.getElementById('next-section-btn').classList.toggle('hidden', sectionNum === totalSections);
+  document.getElementById('submit-btn').classList.toggle('hidden', sectionNum !== totalSections);
+  document.getElementById('form-page').scrollTo({ top:0, behavior:'smooth' });
 }
 
-function getSections() {
-  const hasSec1 = currentRound === 'pre' && !currentUser.rounds.pre.completed;
-  const hasSec4 = currentRound === 'post2';
-  const s = [];
-  if (hasSec1) s.push(1);
-  s.push(2, 3);
-  if (hasSec4) s.push(4);
-  return s;
-}
-
-function nextSection() {
-  if (!validateSection(currentSection)) return;
-  const secs = getSections();
-  const idx = secs.indexOf(currentSection);
-  if (idx < secs.length - 1) showSection(secs[idx + 1]);
-  updateFormProgress();
-}
-function prevSection() {
-  const secs = getSections();
-  const idx = secs.indexOf(currentSection);
-  if (idx > 0) showSection(secs[idx - 1]);
-}
-
-// ── Validation ─────────────────────────────────────────────────
-function validateSection(num) {
-  let valid = true;
-  if (num === 1) {
-    const fields = ['gender','age','marital_status','education','hospital_level','position','work_experience','pc_experience','pc_training'];
-    const pcTrain = formAnswers.section1.pc_training;
-    if (pcTrain === 'เคย') fields.push('training_course');
-    fields.forEach(f => {
-      const val = formAnswers.section1[f];
-      const el  = document.getElementById(`field-${f}`);
-      if (!val || val === '') {
-        if (el) el.classList.add('error-highlight');
-        valid = false;
-      } else {
-        if (el) el.classList.remove('error-highlight');
-      }
-    });
-    if (!valid) {
-      showToast('กรุณากรอกข้อมูลส่วนบุคคลให้ครบถ้วน', 'warning');
-      const first = document.querySelector('#section-1 .error-highlight');
-      if (first) first.scrollIntoView({ behavior:'smooth', block:'center' });
-    }
-  } else if (num === 2) {
-    const missing = [];
-    formAnswers.section2.forEach((v, i) => {
-      const row = document.getElementById(`s2-row-${i}`);
-      if (v === null) {
-        row.classList.add('error-highlight');
-        missing.push(i + 1);
-        valid = false;
-      } else {
-        row.classList.remove('error-highlight');
-      }
-    });
-    if (!valid) {
-      showToast(`กรุณาตอบข้อ ${missing.slice(0,3).join(', ')}${missing.length>3?'...('+missing.length+' ข้อ)':''} ให้ครบ`, 'warning');
-      const first = document.querySelector('#section-2 .error-highlight');
-      if (first) first.scrollIntoView({ behavior:'smooth', block:'center' });
-    }
-  } else if (num === 3) {
-    const missing = [];
-    formAnswers.section3.forEach((v, i) => {
-      const row = document.getElementById(`s3-row-${i}`);
-      if (v === null) {
-        row.classList.add('error-highlight');
-        missing.push(i + 1);
-        valid = false;
-      } else {
-        row.classList.remove('error-highlight');
-      }
-    });
-    if (!valid) {
-      showToast(`กรุณาตอบให้ครบทั้ง 13 ข้อ (เหลืออีก ${missing.length} ข้อ)`, 'warning');
-      const first = document.querySelector('#section-3 .error-highlight');
-      if (first) first.scrollIntoView({ behavior:'smooth', block:'center' });
-    }
-  } else if (num === 4) {
-    const c  = document.getElementById('cancer-patients');
-    const nc = document.getElementById('non-cancer-patients');
-    if (c.value === '' || c.value === null) {
-      c.classList.add('error-highlight'); valid = false;
-    } else c.classList.remove('error-highlight');
-    if (nc.value === '' || nc.value === null) {
-      nc.classList.add('error-highlight'); valid = false;
-    } else nc.classList.remove('error-highlight');
-    if (!valid) showToast('กรุณากรอกจำนวนผู้ป่วยให้ครบ', 'warning');
-  }
-  return valid;
-}
-
-// ── Progress ───────────────────────────────────────────────────
 function updateFormProgress() {
-  const secs = getSections();
-  const total = secs.length;
-  let done = 0;
-  secs.forEach(s => {
-    if (s < currentSection) done++;
-    else if (s === currentSection) done += getSectionProgress(s);
-  });
-  const pct = Math.min(100, Math.round((done / total) * 100));
-  document.getElementById('form-progress-bar').style.width = pct + '%';
-  document.getElementById('form-progress-pct').textContent = pct + '%';
+  const startSection  = currentUser.personalInfo ? 2 : 1;
+  const totalSections = (currentUser.personalInfo ? 0 : 1) + 2 + (currentRound === 'post2' ? 1 : 0);
+  const completedSections = currentSection - startSection;
+  let sp = 0;
+  if      (currentSection === 1) sp = Object.keys(formAnswers.section1).length / 9;
+  else if (currentSection === 2) sp = formAnswers.section2.filter(a=>a!==undefined).length / competencyQuestions.length;
+  else if (currentSection === 3) sp = formAnswers.section3.filter(a=>a!==undefined).length / personCenteredQuestions.length;
+  else if (currentSection === 4) sp = ((formAnswers.section4.cancer_patients!==undefined?1:0)+(formAnswers.section4.non_cancer_patients!==undefined?1:0)) / 2;
+  document.getElementById('form-progress-bar').style.width = `${((completedSections + sp) / totalSections) * 100}%`;
 }
-function getSectionProgress(num) {
-  if (num === 1) {
+
+function validateSection(sectionNum) {
+  let isValid = true, firstError = null;
+  if (sectionNum === 1) {
     const fields = ['gender','age','marital_status','education','hospital_level','position','work_experience','pc_experience','pc_training'];
-    const filled = fields.filter(f => formAnswers.section1[f] && formAnswers.section1[f] !== '').length;
-    return filled / fields.length;
+    fields.forEach(field => {
+      const container = document.querySelector(`[data-question="${field}"]`);
+      let hasValue = false;
+      if (['gender','marital_status','education','hospital_level','position','pc_experience','pc_training'].includes(field)) {
+        const checked = container.querySelector('input[type="radio"]:checked');
+        hasValue = checked !== null;
+        if (hasValue) {
+          if (checked.value === 'other') {
+            const oi = container.querySelector(`input[name="${field}_other"]`);
+            hasValue = oi && oi.value.trim() !== '';
+            if (hasValue) formAnswers.section1[field] = oi.value.trim();
+          } else { formAnswers.section1[field] = checked.value; }
+        }
+      } else {
+        const el = container.querySelector('input[type="number"],input[type="text"]');
+        hasValue = el && el.value.trim() !== '';
+        if (hasValue) formAnswers.section1[field] = el.value.trim();
+      }
+      if (!hasValue) { isValid=false; container.classList.add('error-highlight'); if(!firstError)firstError=container; }
+      else container.classList.remove('error-highlight');
+    });
+  } else if (sectionNum === 2) {
+    competencyQuestions.forEach((_,i) => {
+      const row = document.querySelector(`[data-question="s2_${i}"]`);
+      if (formAnswers.section2[i] === undefined) { isValid=false; row.classList.add('error-highlight'); if(!firstError)firstError=row; }
+      else row.classList.remove('error-highlight');
+    });
+  } else if (sectionNum === 3) {
+    personCenteredQuestions.forEach((_,i) => {
+      const row = document.querySelector(`[data-question="s3_${i}"]`);
+      if (formAnswers.section3[i] === undefined) { isValid=false; row.classList.add('error-highlight'); if(!firstError)firstError=row; }
+      else row.classList.remove('error-highlight');
+    });
+  } else if (sectionNum === 4) {
+    const ci = document.getElementById('cancer-patients');
+    const ni = document.getElementById('non-cancer-patients');
+    if (ci.value.trim()==='') { isValid=false; ci.classList.add('error-highlight'); if(!firstError)firstError=ci; }
+    else { ci.classList.remove('error-highlight'); formAnswers.section4.cancer_patients = parseInt(ci.value)||0; }
+    if (ni.value.trim()==='') { isValid=false; ni.classList.add('error-highlight'); if(!firstError)firstError=ni; }
+    else { ni.classList.remove('error-highlight'); formAnswers.section4.non_cancer_patients = parseInt(ni.value)||0; }
   }
-  if (num === 2) return formAnswers.section2.filter(v => v !== null).length / 65;
-  if (num === 3) return formAnswers.section3.filter(v => v !== null).length / 13;
-  if (num === 4) {
-    let n = 0;
-    if (document.getElementById('cancer-patients')?.value !== '') n++;
-    if (document.getElementById('non-cancer-patients')?.value !== '') n++;
-    return n / 2;
+  if (!isValid && firstError) {
+    firstError.scrollIntoView({ behavior:'smooth', block:'center' });
+    showToast('กรุณาตอบคำถามให้ครบทุกข้อ', 'warning');
   }
-  return 0;
+  return isValid;
 }
 
-// ── Submit ─────────────────────────────────────────────────────
+function calculateScores() {
+  return {
+    section2: formAnswers.section2.reduce((a,b) => a + (b||0), 0),
+    section3: formAnswers.section3.reduce((a,b) => a + (b||0), 0)
+  };
+}
+
 async function submitAssessment() {
-  if (!validateSection(currentSection)) return;
-  setSubmitLoading(true);
+  const totalSections = (currentUser.personalInfo ? 0 : 1) + 2 + (currentRound === 'post2' ? 1 : 0);
+  if (!validateSection(totalSections)) return;
+
+  const scores = calculateScores();
+  if (!currentUser.personalInfo) currentUser.personalInfo = { ...formAnswers.section1 };
+
+  currentUser.rounds[currentRound] = {
+    completed: true,
+    date: new Date().toISOString(),
+    scores,
+    patients: currentRound === 'post2'
+      ? { cancer: formAnswers.section4.cancer_patients||0, non_cancer: formAnswers.section4.non_cancer_patients||0 }
+      : { cancer:0, non_cancer:0 }
+  };
+
+  const interp2 = getInterpretation(2, scores.section2);
+  const interp3 = getInterpretation(3, scores.section3);
+
+  const record = {
+    license_number: currentUser.licenseNumber,
+    round: currentRound,
+    ...currentUser.personalInfo,
+    section2_score: scores.section2,
+    section3_score: scores.section3,
+    interpretation_s2: interp2.level,
+    interpretation_s3: interp3.level,
+    cancer_patients: currentUser.rounds[currentRound].patients.cancer,
+    non_cancer_patients: currentUser.rounds[currentRound].patients.non_cancer,
+    assessment_date: new Date().toISOString()
+  };
+  formAnswers.section2.forEach((v,i) => record[`section2_q${i+1}`] = v||0);
+  formAnswers.section3.forEach((v,i) => record[`section3_q${i+1}`] = v||0);
+
   try {
-    const s2score = formAnswers.section2.reduce((a, b) => a + (b || 0), 0);
-    const s3score = formAnswers.section3.reduce((a, b) => a + (b || 0), 0);
-    const interpS2 = getInterpretation(2, s2score);
-    const interpS3 = getInterpretation(3, s3score);
-
-    // Build record
-    const rec = {
-      license_number: currentUser.licenseNumber,
-      round: currentRound,
-      ...formAnswers.section1
-    };
-    if (currentRound !== 'pre' || currentUser.rounds.pre.completed) {
-      // Copy personal info from stored data
-      Object.assign(rec, currentUser.personalInfo);
-    }
-    formAnswers.section2.forEach((v, i) => { rec[`section2_q${i+1}`] = v !== null ? v : ''; });
-    rec.section2_score    = s2score;
-    rec.interpretation_s2 = interpS2.level;
-    formAnswers.section3.forEach((v, i) => { rec[`section3_q${i+1}`] = v !== null ? v : ''; });
-    rec.section3_score    = s3score;
-    rec.interpretation_s3 = interpS3.level;
-    if (currentRound === 'post2') {
-      rec.cancer_patients     = Number(document.getElementById('cancer-patients').value) || 0;
-      rec.non_cancer_patients = Number(document.getElementById('non-cancer-patients').value) || 0;
+    const result = await apiCreate(record);
+    if (result && result.isOk !== false) {
+      showModal(
+        'บันทึกสำเร็จ!',
+        `สมรรถนะการพยาบาล: ${scores.section2}/325 ระดับ${interp2.level}\nการดูแลยึดบุคคลเป็นศูนย์กลาง: ${scores.section3}/65 ระดับ${interp3.level}`,
+        'success'
+      );
+      document.getElementById('modal-close-btn').onclick = () => { hideModal(); showTimeline(); };
     } else {
-      rec.cancer_patients = rec.non_cancer_patients = '';
+      showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error');
     }
-    rec.assessment_date = new Date().toISOString();
-
-    await apiCreate(rec);
-
-    // Update local state
-    currentUser.rounds[currentRound].completed = true;
-    currentUser.rounds[currentRound].date = rec.assessment_date;
-    currentUser.rounds[currentRound].scores.section2 = s2score;
-    currentUser.rounds[currentRound].scores.section3 = s3score;
-    if (currentRound === 'pre') {
-      currentUser.personalInfo = { ...formAnswers.section1 };
-    }
-    if (currentRound === 'post2') {
-      currentUser.rounds.post2.patients = { cancer: rec.cancer_patients, nonCancer: rec.non_cancer_patients };
-    }
-
-    showModal('✅','บันทึกสำเร็จ!',
-      `ส่วนที่ 2 (สมรรถนะ): ${s2score} คะแนน\nระดับ: ${interpS2.level}\n\nส่วนที่ 3 (Person-Centered): ${s3score} คะแนน\nระดับ: ${interpS3.level}`);
   } catch(e) {
-    showToast('เกิดข้อผิดพลาด กรุณาลองใหม่: ' + e.message, 'error');
-  } finally {
-    setSubmitLoading(false);
-  }
-}
-function setSubmitLoading(on) {
-  document.getElementById('submit-text').textContent = on ? 'กำลังบันทึก...' : 'บันทึกผลการประเมิน ✓';
-  document.getElementById('submit-spinner').classList.toggle('hidden', !on);
-  document.getElementById('btn-submit').disabled = on;
-}
-function goToTimeline() { showTimeline(); }
-
-// ── Scoring ────────────────────────────────────────────────────
-function getInterpretation(section, score) {
-  if (section === 2) {
-    // 0–325 → 4 levels (81.25 intervals)
-    if (score < 81.25)  return { level:'ต่ำ',   desc:'ต้องพัฒนาเพิ่มเติมอย่างมาก' };
-    if (score < 162.5)  return { level:'ปานกลาง', desc:'มีความรู้พื้นฐาน ควรพัฒนาต่อ' };
-    if (score < 243.75) return { level:'ดี',    desc:'มีสมรรถนะที่ดี' };
-    return { level:'ดีมาก', desc:'มีสมรรถนะระดับสูง' };
-  } else {
-    // 13–65 → 4 levels (13 intervals)
-    if (score < 29.25)  return { level:'ต่ำ',   desc:'ต้องปรับปรุงการดูแลเน้นบุคคล' };
-    if (score < 45.5)   return { level:'ปานกลาง', desc:'มีทัศนคติพอใช้' };
-    if (score < 58.5)   return { level:'ดี',    desc:'มีทัศนคติที่ดี' };
-    return { level:'ดีมาก', desc:'มีทัศนคติเชิงบวกสูง' };
+    showToast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
 }
 
-// ── Dashboard ──────────────────────────────────────────────────
+// ==================== DASHBOARD ====================
 function showDashboard() {
   showPage('dashboard-page');
-  document.getElementById('dash-license').textContent = currentUser.licenseNumber;
+  document.getElementById('dashboard-license').textContent = currentUser.licenseNumber;
   renderChart();
   renderScoreTable();
-  renderPersonalSummary();
-  renderPatientSummary();
+  renderInterpretations();
+  renderPersonalInfoSummary();
+  renderPatientExperience();
 }
 
 function renderChart() {
-  if (chartInstance) chartInstance.destroy();
-  const ctx = document.getElementById('result-chart').getContext('2d');
-  const labels = ['Pre-test','Post-test 1','Post-test 2'];
-  const s2data = ['pre','post1','post2'].map(k => currentUser.rounds[k].scores.section2);
-  const s3data = ['pre','post1','post2'].map(k => currentUser.rounds[k].scores.section3);
-  chartInstance = new Chart(ctx, {
-    type:'line',
-    data:{
-      labels,
-      datasets:[
+  const ctx = document.getElementById('results-chart').getContext('2d');
+  if (resultsChart) resultsChart.destroy();
+  resultsChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['Pre-test','Post-test 1','Post-test 2'],
+      datasets: [
         {
-          label:'ส่วนที่ 2 สมรรถนะ (0–325)',
-          data:s2data, borderColor:'#f59e0b', backgroundColor:'rgba(245,158,11,0.1)',
-          fill:true, tension:0.4, pointRadius:7, pointHoverRadius:10,
-          pointBackgroundColor:'#f59e0b', borderWidth:3,
-          yAxisID:'y'
+          label: 'ส่วนที่ 2: สมรรถนะการพยาบาล (0-325)',
+          data: [currentUser.rounds.pre.scores.section2, currentUser.rounds.post1.scores.section2, currentUser.rounds.post2.scores.section2],
+          borderColor:'#F59E0B', backgroundColor:'rgba(245,158,11,0.1)',
+          tension:0.4, fill:true, pointRadius:7, pointBackgroundColor:'#F59E0B', pointBorderColor:'#fff', pointBorderWidth:2
         },
         {
-          label:'ส่วนที่ 3 Person-Centered (13–65)',
-          data:s3data, borderColor:'#a855f7', backgroundColor:'rgba(168,85,247,0.1)',
-          fill:true, tension:0.4, pointRadius:7, pointHoverRadius:10,
-          pointBackgroundColor:'#a855f7', borderWidth:3,
-          yAxisID:'y2'
+          label: 'ส่วนที่ 3: การดูแลยึดบุคคลเป็นศูนย์กลาง (13-65)',
+          data: [currentUser.rounds.pre.scores.section3, currentUser.rounds.post1.scores.section3, currentUser.rounds.post2.scores.section3],
+          borderColor:'#A855F7', backgroundColor:'rgba(168,85,247,0.1)',
+          tension:0.4, fill:true, pointRadius:7, pointBackgroundColor:'#A855F7', pointBorderColor:'#fff', pointBorderWidth:2
         }
       ]
     },
-    options:{
-      responsive:true,
-      interaction:{ mode:'index', intersect:false },
-      plugins:{
-        legend:{ position:'bottom', labels:{ font:{ family:'Prompt', size:12 } } },
-        tooltip:{
-          callbacks:{
-            afterLabel(ctx) {
-              const sec = ctx.datasetIndex === 0 ? 2 : 3;
-              const i = getInterpretation(sec, ctx.raw);
-              return 'ระดับ: ' + i.level;
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: {
+        legend: { position:'bottom', labels:{ font:{size:13}, padding:20, usePointStyle:true } },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const v = ctx.parsed.y;
+              const s = ctx.datasetIndex === 0 ? 2 : 3;
+              return `${ctx.dataset.label}: ${v} : ระดับ${getInterpretation(s,v).level}`;
             }
           }
         }
       },
-      scales:{
-        y:  { beginAtZero:true, max:325, title:{ display:true, text:'ส่วนที่ 2 คะแนน', font:{family:'Prompt'} } },
-        y2: { beginAtZero:false, min:13, max:65, position:'right', title:{ display:true, text:'ส่วนที่ 3 คะแนน', font:{family:'Prompt'} }, grid:{ drawOnChartArea:false } }
+      scales: {
+        y: { beginAtZero:true, max:325, grid:{ color:'rgba(0,0,0,0.05)' } },
+        x: { grid:{ display:false } }
       }
     }
   });
 }
 
 function renderScoreTable() {
-  const rows = [
-    { key:'pre',   label:'Pre-test',   color:'#dbeafe' },
-    { key:'post1', label:'Post-test 1', color:'#fef3c7' },
-    { key:'post2', label:'Post-test 2', color:'#d1fae5' }
-  ];
-  const levelColors = { 'ต่ำ':'bg-red-100 text-red-700','ปานกลาง':'bg-yellow-100 text-yellow-700','ดี':'bg-green-100 text-green-700','ดีมาก':'bg-emerald-100 text-emerald-700' };
-  const tbody = document.getElementById('score-table-body');
-  tbody.innerHTML = rows.map(r => {
-    const rd = currentUser.rounds[r.key];
-    const s2 = rd.scores.section2;
-    const s3 = rd.scores.section3;
-    const i2 = getInterpretation(2, s2);
-    const i3 = getInterpretation(3, s3);
-    const lc2 = levelColors[i2.level] || '';
-    const lc3 = levelColors[i3.level] || '';
-    return `
-      <tr style="background:${r.color}">
-        <td class="py-3 px-4 font-semibold text-gray-700 border-b">${r.label}</td>
-        <td class="py-3 px-4 text-gray-600 border-b text-xs">${formatDate(rd.date)}</td>
-        <td class="py-3 px-4 text-center border-b">
-          <div class="font-bold text-orange-700 text-lg">${s2}</div>
-          <span class="text-xs px-2 py-0.5 rounded-full ${lc2} font-medium">${i2.level}</span>
-        </td>
-        <td class="py-3 px-4 text-center border-b">
-          <div class="font-bold text-purple-700 text-lg">${s3}</div>
-          <span class="text-xs px-2 py-0.5 rounded-full ${lc3} font-medium">${i3.level}</span>
-        </td>
-      </tr>
-    `;
-  }).join('');
+  document.getElementById('score-table-body').innerHTML = `
+    <tr class="border-b">
+      <td class="px-4 py-3 font-medium text-gray-700">ส่วนที่ 2: สมรรถนะการพยาบาล</td>
+      <td class="px-4 py-3 text-center font-semibold text-amber-600">${currentUser.rounds.pre.scores.section2}/325</td>
+      <td class="px-4 py-3 text-center font-semibold text-amber-600">${currentUser.rounds.post1.scores.section2}/325</td>
+      <td class="px-4 py-3 text-center font-semibold text-amber-600">${currentUser.rounds.post2.scores.section2}/325</td>
+    </tr>
+    <tr class="border-b bg-gray-50">
+      <td class="px-4 py-3 font-medium text-gray-700">ส่วนที่ 3: การดูแลยึดบุคคลเป็นศูนย์กลาง</td>
+      <td class="px-4 py-3 text-center font-semibold text-purple-600">${currentUser.rounds.pre.scores.section3}/65</td>
+      <td class="px-4 py-3 text-center font-semibold text-purple-600">${currentUser.rounds.post1.scores.section3}/65</td>
+      <td class="px-4 py-3 text-center font-semibold text-purple-600">${currentUser.rounds.post2.scores.section3}/65</td>
+    </tr>
+    <tr>
+      <td class="px-4 py-3 font-medium text-gray-700">วันที่ทำแบบประเมิน</td>
+      <td class="px-4 py-3 text-center text-sm text-gray-500">${formatDate(currentUser.rounds.pre.date)}</td>
+      <td class="px-4 py-3 text-center text-sm text-gray-500">${formatDate(currentUser.rounds.post1.date)}</td>
+      <td class="px-4 py-3 text-center text-sm text-gray-500">${formatDate(currentUser.rounds.post2.date)}</td>
+    </tr>`;
 }
 
-function renderPersonalSummary() {
-  const info = currentUser.personalInfo;
-  const labels = {
-    gender:'เพศ', age:'อายุ', marital_status:'สถานภาพ', education:'การศึกษา',
-    hospital_level:'ระดับ รพ.', position:'ตำแหน่ง', work_experience:'ประสบการณ์ทำงาน',
-    pc_experience:'ประสบการณ์ PC', pc_training:'เคยอบรม PC', training_course:'หลักสูตรที่อบรม'
-  };
-  const el = document.getElementById('personal-summary');
-  el.innerHTML = Object.entries(labels).map(([k,lbl]) => {
-    const val = info[k];
-    if (!val && val !== 0) return '';
-    return `<div class="bg-gray-50 rounded-xl p-3">
-      <p class="text-xs text-gray-500 mb-1">${lbl}</p>
-      <p class="font-semibold text-gray-800 text-sm">${val}</p>
+function renderInterpretations() {
+  const rounds = ['pre','post1','post2'];
+  const labels = { pre:'Pre-test', post1:'Post-test 1', post2:'Post-test 2' };
+
+  document.getElementById('s2-interpretation').innerHTML = `
+    <h4 class="font-bold text-gray-800 mb-3">ส่วนที่ 2: สมรรถนะการพยาบาล</h4>
+    <div class="space-y-2 text-sm">
+      ${rounds.map(r => {
+        const interp = getInterpretation(2, currentUser.rounds[r].scores.section2);
+        return `<div class="flex justify-between items-center p-2 bg-white rounded">
+          <span>${labels[r]}</span>
+          <span class="font-semibold ${interp.color}">${currentUser.rounds[r].scores.section2} (${interp.level})</span>
+        </div>`;
+      }).join('')}
     </div>`;
-  }).join('');
+
+  document.getElementById('s3-interpretation').innerHTML = `
+    <h4 class="font-bold text-gray-800 mb-3">ส่วนที่ 3: การดูแลยึดบุคคลเป็นศูนย์กลาง</h4>
+    <div class="space-y-2 text-sm">
+      ${rounds.map(r => {
+        const interp = getInterpretation(3, currentUser.rounds[r].scores.section3);
+        return `<div class="flex justify-between items-center p-2 bg-white rounded">
+          <span>${labels[r]}</span>
+          <span class="font-semibold ${interp.color}">${currentUser.rounds[r].scores.section3} (${interp.level})</span>
+        </div>`;
+      }).join('')}
+    </div>`;
 }
 
-function renderPatientSummary() {
-  const p = currentUser.rounds.post2.patients;
-  const card = document.getElementById('patient-data-card');
-  if (!p || (p.cancer === '' && p.nonCancer === '')) { card.classList.add('hidden'); return; }
-  card.classList.remove('hidden');
-  document.getElementById('patient-summary').innerHTML = `
-    <div class="bg-red-50 rounded-xl p-4 text-center">
-      <div class="text-3xl font-bold text-red-700">${p.cancer}</div>
-      <div class="text-sm text-red-500 mt-1">ผู้ป่วย Cancer</div>
-    </div>
-    <div class="bg-blue-50 rounded-xl p-4 text-center">
-      <div class="text-3xl font-bold text-blue-700">${p.nonCancer}</div>
-      <div class="text-sm text-blue-500 mt-1">ผู้ป่วย Non-cancer</div>
-    </div>
-  `;
+function renderPatientExperience() {
+  const card = document.getElementById('patient-experience-card');
+  if (currentUser.rounds.post2.completed) {
+    card.classList.remove('hidden');
+    document.getElementById('cancer-count').textContent = currentUser.rounds.post2.patients.cancer;
+    document.getElementById('non-cancer-count').textContent = currentUser.rounds.post2.patients.non_cancer;
+    document.getElementById('total-patients').textContent = currentUser.rounds.post2.patients.cancer + currentUser.rounds.post2.patients.non_cancer;
+  } else {
+    card.classList.add('hidden');
+  }
 }
 
-// ── Helpers ────────────────────────────────────────────────────
-function showPage(id) {
-  ['login-page','timeline-page','form-page','dashboard-page'].forEach(p => {
-    document.getElementById(p).classList.toggle('hidden', p !== id);
-  });
+function renderPersonalInfoSummary() {
+  const container = document.getElementById('personal-info-summary');
+  const info = currentUser.personalInfo;
+  if (!info) { container.innerHTML = '<p class="text-gray-500">ไม่มีข้อมูลส่วนบุคคล</p>'; return; }
+
+  const labels = { gender:'เพศ', age:'อายุ', marital_status:'สถานภาพสมรส', education:'การศึกษา', hospital_level:'ระดับโรงพยาบาล', position:'ตำแหน่ง', work_experience:'ประสบการณ์', pc_experience:'ประสบการณ์ PC', pc_training:'อบรม PC' };
+  const maps = {
+    gender: { male:'ชาย', female:'หญิง' },
+    marital_status: { single:'โสด', married:'สมรส', divorced:'หย่าร้าง', widowed:'หม้าย', separated:'แยก' },
+    education: { bachelor:'ปริญญาตรี', master:'ปริญญาโท', doctorate:'ปริญญาเอก' },
+    hospital_level: { community:'ชุมชน', general:'ทั่วไป', center:'ศูนย์' },
+    position: { head:'หัวหน้า', chief_ward:'หัวหน้าหอผู้ป่วย', deputy_chief:'รองหัวหน้า', nurse:'พยาบาล' },
+    pc_experience: { yes:'เคย', no:'ไม่เคย' },
+    pc_training: { yes:'เคย', no:'ไม่เคย' }
+  };
+  const fmt = (k,v) => {
+    if (maps[k] && maps[k][v]) return maps[k][v];
+    if (k==='age'||k==='work_experience') return `${v} ปี`;
+    return v;
+  };
+
+  container.innerHTML = Object.entries(info)
+    .filter(([k]) => k !== 'training_course')
+    .map(([k,v]) => `<div class="bg-gray-50 rounded-lg p-3"><p class="text-xs text-gray-500">${labels[k]||k}</p><p class="font-medium text-gray-800">${fmt(k,v)}</p></div>`)
+    .join('');
+
+  if (info.training_course) {
+    container.innerHTML += `<div class="col-span-2 sm:col-span-3 bg-blue-50 rounded-lg p-3"><p class="text-xs text-blue-600">หลักสูตรการอบรม</p><p class="font-medium text-blue-800">${info.training_course}</p></div>`;
+  }
 }
-function formatDate(iso) {
-  if (!iso) return '-';
-  try {
-    return new Date(iso).toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric', timeZone:'Asia/Bangkok' });
-  } catch { return iso; }
-}
-function showToast(msg, type = 'info') {
-  const c = document.getElementById('toast-container');
-  const t = document.createElement('div');
-  t.className = `toast toast-${type}`;
-  t.textContent = msg;
-  c.appendChild(t);
-  setTimeout(() => t.remove(), 3200);
-}
-function showModal(icon, title, msg) {
-  document.getElementById('modal-icon').textContent  = icon;
-  document.getElementById('modal-title').textContent = title;
-  document.getElementById('modal-msg').textContent   = msg;
-  document.getElementById('modal').classList.remove('hidden');
-}
-function closeModal() {
-  document.getElementById('modal').classList.add('hidden');
-  showTimeline();
-}
+
+// ==================== EVENT LISTENERS ====================
+document.getElementById('logout-btn')?.addEventListener('click', () => {
+  currentUser = null;
+  document.getElementById('license-input').value = '';
+  showPage('login-page');
+});
+document.getElementById('back-to-timeline')?.addEventListener('click', () => showTimeline());
+document.getElementById('back-to-timeline-from-dashboard')?.addEventListener('click', () => showTimeline());
+document.getElementById('prev-section-btn')?.addEventListener('click', () => {
+  const startSection = currentUser.personalInfo ? 2 : 1;
+  if (currentSection > startSection) showSection(currentSection - 1);
+});
+document.getElementById('next-section-btn')?.addEventListener('click', () => {
+  if (validateSection(currentSection)) showSection(currentSection + 1);
+});
+document.getElementById('submit-btn')?.addEventListener('click', submitAssessment);
+document.getElementById('view-dashboard-btn')?.addEventListener('click', showDashboard);
+document.getElementById('modal-close-btn')?.addEventListener('click', hideModal);
+document.getElementById('modal-overlay')?.addEventListener('click', e => { if (e.target === e.currentTarget) hideModal(); });
+
+document.addEventListener('change', e => {
+  if (e.target.name === 'marital_status') {
+    document.querySelector('[name=marital_status_other]').style.display = e.target.value === 'other' ? 'block' : 'none';
+  }
+  if (e.target.name === 'hospital_level') {
+    document.querySelector('[name=hospital_level_other]').style.display = e.target.value === 'other' ? 'block' : 'none';
+  }
+  if (e.target.name === 'position') {
+    document.querySelector('[name=position_other]').style.display = e.target.value === 'other' ? 'block' : 'none';
+  }
+});
+
+// ==================== INIT ====================
+initLogin();
 </script>
 </body>
 </html>

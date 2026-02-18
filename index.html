@@ -840,7 +840,7 @@ function generateQuestions() {
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="flex-1">
           <span class="inline-flex items-center justify-center w-8 h-8 bg-amber-100 text-amber-600 rounded-lg text-sm font-bold mr-2">${i+1}</span>
-          <span class="text-gray-700 text-sm">${q}</span>
+          <span class="q-text text-gray-800 text-base sm:text-sm md:text-base leading-relaxed">${q}</span>
           ${cv !== undefined ? `<div class="score-preview">เลือก: ระดับ ${cv}</div>` : ''}
         </div>
         <div class="flex gap-1 justify-end flex-wrap min-w-fit">
@@ -857,7 +857,7 @@ function generateQuestions() {
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="flex-1">
           <span class="inline-flex items-center justify-center w-8 h-8 bg-purple-100 text-purple-600 rounded-lg text-sm font-bold mr-2">${i+1}</span>
-          <span class="text-gray-700 text-sm">${q}</span>
+          <span class="q-text text-gray-800 text-base sm:text-sm md:text-base leading-relaxed">${q}</span>
           ${cv !== undefined ? `<div class="score-preview">เลือก: ระดับ ${cv}</div>` : ''}
         </div>
         <div class="flex gap-1 justify-end flex-wrap min-w-fit">

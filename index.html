@@ -815,28 +815,29 @@ function updateTimelineCards() {
 }
 
 // ==================== FORM ====================
+function getFlow() {
+  if (currentRound === 'pre')  return currentUser.personalInfo ? [2,3] : [1,2,3];
+  if (currentRound === 'post1') return [2,3];
+  if (currentRound === 'post2') return [2,3,4];
+  return [1,2,3];
+}
+
+function getStepIndex(sectionId) {
+  return getFlow().indexOf(sectionId);
+}
 function startAssessment(round) {
   currentRound = round;
-  if (round === 'pre') {
-  currentSection = currentUser.personalInfo ? 2 : 1; // pre ยังมี section 1
-} else {
-  currentSection = 2; // post1 / post2 เริ่มที่ section 2 เสมอ
-}
+
   formAnswers = { section1:{}, section2:[], section3:[], section4:{} };
   if (currentUser.personalInfo) formAnswers.section1 = { ...currentUser.personalInfo };
 
   const titles = { pre:'Pre-test', post1:'Post-test 1', post2:'Post-test 2' };
   document.getElementById('form-title').textContent = `แบบประเมิน ${titles[currentRound]}`;
-  let totalSec;
-if (round === 'pre') {
-  totalSec = currentUser.personalInfo ? 2 : 3;   // 1-2-3 หรือ 2-3
-} else if (round === 'post1') {
-  totalSec = 2;                                  // 2-3
-} else if (round === 'post2') {
-  totalSec = 3;                                  // 2-3-4
-}
-document.getElementById('total-section').textContent = totalSec;
 
+  const flow = getFlow();
+  document.getElementById('total-section').textContent = flow.length;
+
+  currentSection = flow[0];   // ✅ เริ่มที่ section จริงตัวแรกของ flow
   showPage('form-page');
   generateQuestions();
   showSection(currentSection);
@@ -906,51 +907,49 @@ function selectLikert(btn) {
 }
 
 function showSection(sectionNum) {
+  const flow = getFlow();
+  const idx = flow.indexOf(sectionNum);
+  if (idx === -1) return;
+
   currentSection = sectionNum;
-  document.getElementById('current-section').textContent = sectionNum;
+
+  // ✅ แสดงเลขลำดับ 1..n (ไม่ใช่เลข section จริง)
+  document.getElementById('current-section').textContent = (idx + 1);
+  document.getElementById('total-section').textContent = flow.length;
+
+  // ซ่อน/โชว์ section ตาม "เลข section จริง"
   document.querySelectorAll('.form-section').forEach((s,i) => {
-  const sec = i + 1;
+    const sec = i + 1;
 
-  // ห้าม section 4 ถ้าไม่ใช่ post2
-  if (sec === 4 && currentRound !== 'post2') {
-    s.classList.add('hidden');
-    return;
-  }
+    // กัน section 4 ถ้าไม่ใช่ post2
+    if (sec === 4 && currentRound !== 'post2') {
+      s.classList.add('hidden');
+      return;
+    }
+    s.classList.toggle('hidden', sec !== sectionNum);
+  });
 
-  s.classList.toggle('hidden', sec !== sectionNum);
-});
-  const startSection  = currentUser.personalInfo ? 2 : 1;
-  let totalSections;
-if (currentRound === 'pre') {
-  totalSections = currentUser.personalInfo ? 2 : 3;
-} else if (currentRound === 'post1') {
-  totalSections = 2;
-} else if (currentRound === 'post2') {
-  totalSections = 3;
-}
-  document.getElementById('prev-section-btn').classList.toggle('hidden', sectionNum <= startSection);
-  document.getElementById('next-section-btn').classList.toggle('hidden', sectionNum === totalSections);
-  document.getElementById('submit-btn').classList.toggle('hidden', sectionNum !== totalSections);
+  // ✅ ปุ่มล่างอิง idx ใน flow
+  document.getElementById('prev-section-btn').classList.toggle('hidden', idx === 0);
+  document.getElementById('next-section-btn').classList.toggle('hidden', idx === flow.length - 1);
+  document.getElementById('submit-btn').classList.toggle('hidden', idx !== flow.length - 1);
+
   document.getElementById('form-page').scrollTo({ top:0, behavior:'smooth' });
 }
 
 function updateFormProgress() {
-  const startSection  = currentUser.personalInfo ? 2 : 1;
-  let totalSections;
-if (currentRound === 'pre') {
-  totalSections = currentUser.personalInfo ? 2 : 3;
-} else if (currentRound === 'post1') {
-  totalSections = 2;
-} else if (currentRound === 'post2') {
-  totalSections = 3;
-}
-  const completedSections = currentSection - startSection;
+  const flow = getFlow();
+  const idx = flow.indexOf(currentSection);
+  const totalSteps = flow.length;
+
   let sp = 0;
   if      (currentSection === 1) sp = Object.keys(formAnswers.section1).length / 9;
   else if (currentSection === 2) sp = formAnswers.section2.filter(a=>a!==undefined).length / competencyQuestions.length;
   else if (currentSection === 3) sp = formAnswers.section3.filter(a=>a!==undefined).length / personCenteredQuestions.length;
   else if (currentSection === 4) sp = ((formAnswers.section4.cancer_patients!==undefined?1:0)+(formAnswers.section4.non_cancer_patients!==undefined?1:0)) / 2;
-  document.getElementById('form-progress-bar').style.width = `${((completedSections + sp) / totalSections) * 100}%`;
+
+  document.getElementById('form-progress-bar').style.width =
+    `${((idx + sp) / totalSteps) * 100}%`;
 }
 
 function validateSection(sectionNum) {
@@ -1013,15 +1012,9 @@ function calculateScores() {
 }
 
 async function submitAssessment() {
-  let totalSections;
-if (currentRound === 'pre') {
-  totalSections = currentUser.personalInfo ? 2 : 3;
-} else if (currentRound === 'post1') {
-  totalSections = 2;
-} else if (currentRound === 'post2') {
-  totalSections = 3;
-}
-  if (!validateSection(totalSections)) return;
+  const flow = getFlow();
+const lastSection = flow[flow.length - 1];
+if (!validateSection(lastSection)) return;
 
   const scores = calculateScores();
   if (!currentUser.personalInfo) currentUser.personalInfo = { ...formAnswers.section1 };
@@ -1228,11 +1221,16 @@ document.getElementById('logout-btn')?.addEventListener('click', () => {
 document.getElementById('back-to-timeline')?.addEventListener('click', () => showTimeline());
 document.getElementById('back-to-timeline-from-dashboard')?.addEventListener('click', () => showTimeline());
 document.getElementById('prev-section-btn')?.addEventListener('click', () => {
-  const startSection = currentUser.personalInfo ? 2 : 1;
-  if (currentSection > startSection) showSection(currentSection - 1);
+  const flow = getFlow();
+  const idx = getStepIndex(currentSection);
+  if (idx > 0) showSection(flow[idx - 1]);
 });
 document.getElementById('next-section-btn')?.addEventListener('click', () => {
-  if (validateSection(currentSection)) showSection(currentSection + 1);
+  const flow = getFlow();
+  const idx = getStepIndex(currentSection);
+  if (validateSection(currentSection) && idx < flow.length - 1) {
+    showSection(flow[idx + 1]);
+  }
 });
 document.getElementById('submit-btn')?.addEventListener('click', submitAssessment);
 document.getElementById('view-dashboard-btn')?.addEventListener('click', showDashboard);

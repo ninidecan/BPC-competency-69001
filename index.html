@@ -916,7 +916,14 @@ function showSection(sectionNum) {
   s.classList.toggle('hidden', sec !== sectionNum);
 });
   const startSection  = currentUser.personalInfo ? 2 : 1;
-  const totalSections = (currentUser.personalInfo ? 0 : 1) + 2 + (currentRound === 'post2' ? 1 : 0);
+  let totalSections;
+if (currentRound === 'pre') {
+  totalSections = currentUser.personalInfo ? 2 : 3;
+} else if (currentRound === 'post1') {
+  totalSections = 2;
+} else if (currentRound === 'post2') {
+  totalSections = 3;
+}
   document.getElementById('prev-section-btn').classList.toggle('hidden', sectionNum <= startSection);
   document.getElementById('next-section-btn').classList.toggle('hidden', sectionNum === totalSections);
   document.getElementById('submit-btn').classList.toggle('hidden', sectionNum !== totalSections);
@@ -925,7 +932,14 @@ function showSection(sectionNum) {
 
 function updateFormProgress() {
   const startSection  = currentUser.personalInfo ? 2 : 1;
-  const totalSections = (currentUser.personalInfo ? 0 : 1) + 2 + (currentRound === 'post2' ? 1 : 0);
+  let totalSections;
+if (currentRound === 'pre') {
+  totalSections = currentUser.personalInfo ? 2 : 3;
+} else if (currentRound === 'post1') {
+  totalSections = 2;
+} else if (currentRound === 'post2') {
+  totalSections = 3;
+}
   const completedSections = currentSection - startSection;
   let sp = 0;
   if      (currentSection === 1) sp = Object.keys(formAnswers.section1).length / 9;
@@ -995,7 +1009,14 @@ function calculateScores() {
 }
 
 async function submitAssessment() {
-  const totalSections = (currentUser.personalInfo ? 0 : 1) + 2 + (currentRound === 'post2' ? 1 : 0);
+  let totalSections;
+if (currentRound === 'pre') {
+  totalSections = currentUser.personalInfo ? 2 : 3;
+} else if (currentRound === 'post1') {
+  totalSections = 2;
+} else if (currentRound === 'post2') {
+  totalSections = 3;
+}
   if (!validateSection(totalSections)) return;
 
   const scores = calculateScores();

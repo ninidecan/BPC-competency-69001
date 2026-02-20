@@ -350,9 +350,9 @@ html, body { height: 100%; }
             <p class="text-gray-500 text-xs font-semibold">คะแนนรวม 0-325</p>
             <div class="flex flex-wrap gap-1">
               <div class="flex flex-col items-center"><div class="w-12 h-8 bg-gray-300 rounded border border-gray-400 flex items-center justify-center text-xs font-bold text-white">0</div><span class="text-xs text-gray-600 text-center mt-1 w-12">ไม่มีความมั่นใจ</span></div>
-              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-red-300 rounded border border-red-400 flex items-center justify-center text-xs font-bold text-white">1</div><span class="text-xs text-gray-600 text-center mt-1 w-12">มั่นใจน้อยมาก</span></div>
-              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-orange-300 rounded border border-orange-400 flex items-center justify-center text-xs font-bold text-white">2</div><span class="text-xs text-gray-600 text-center mt-1 w-12">มั่นใจน้อย</span></div>
-              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-yellow-300 rounded border border-yellow-400 flex items-center justify-center text-xs font-bold text-gray-700">3</div><span class="text-xs text-gray-600 text-center mt-1 w-12">มั่นใจปานกลาง</span></div>
+              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-red-300 rounded border border-red-400 flex items-center justify-center text-xs font-bold text-white">1</div><span class="text-xs text-gray-600 text-center mt-1 w-12">ไม่มั่นใจ</span></div>
+              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-orange-300 rounded border border-orange-400 flex items-center justify-center text-xs font-bold text-white">2</div><span class="text-xs text-gray-600 text-center mt-1 w-12">มั่นใจเล็กน้อย</span></div>
+              <div class="flex flex-col items-center"><div class="w-12 h-8 bg-yellow-300 rounded border border-yellow-400 flex items-center justify-center text-xs font-bold text-gray-700">3</div><span class="text-xs text-gray-600 text-center mt-1 w-12">มั่นใจ</span></div>
               <div class="flex flex-col items-center"><div class="w-12 h-8 bg-lime-300 rounded border border-lime-400 flex items-center justify-center text-xs font-bold text-gray-700">4</div><span class="text-xs text-gray-600 text-center mt-1 w-12">มั่นใจมาก</span></div>
               <div class="flex flex-col items-center"><div class="w-12 h-8 bg-green-400 rounded border border-green-500 flex items-center justify-center text-xs font-bold text-white">5</div><span class="text-xs text-gray-600 text-center mt-1 w-12">มั่นใจมากสุด</span></div>
             </div>
@@ -858,7 +858,7 @@ function generateQuestions() {
           ${cv !== undefined ? `<div class="score-preview">เลือก: ระดับ ${cv}</div>` : ''}
         </div>
         <div class="flex gap-1 justify-end flex-wrap min-w-fit">
-          ${[0,1,2,3,4,5].map(score => `<button type="button" class="likert-btn s2-${cv===score?score:'unselected'}" data-section="2" data-index="${i}" data-value="${score}" onclick="selectLikert(this)" title="${['ไม่มีความมั่นใจเลย','มั่นใจน้อยมาก','มั่นใจน้อย','มั่นใจปานกลาง','มั่นใจมาก','มั่นใจมากที่สุด'][score]}">${score}</button>`).join('')}
+          ${[0,1,2,3,4,5].map(score => `<button type="button" class="likert-btn s2-${cv===score?score:'unselected'}" data-section="2" data-index="${i}" data-value="${score}" onclick="selectLikert(this)" title="${['ไม่มั่นใจเลย','ไม่มั่นใจ','มั่นใจเล็กน้อย','มั่นใจ','มั่นใจมาก','มั่นใจเต็มที่'][score]}">${score}</button>`).join('')}
         </div>
       </div>
     </div>`;
@@ -898,7 +898,7 @@ function selectLikert(btn) {
   if (section === 2) formAnswers.section2[index] = value;
   else formAnswers.section3[index] = value;
   const levels = {
-    s2: ['ไม่มีความมั่นใจเลย','มั่นใจน้อยมาก','มั่นใจน้อย','มั่นใจปานกลาง','มั่นใจมาก','มั่นใจมากที่สุด'],
+    s2: ['ไม่มั่นใจเลย','ไม่มั่นใจ','มั่นใจเล็กน้อย','มั่นใจ','มั่นใจมาก','มั่นใจเต็มที่'],
     s3: ['','ไม่เห็นด้วยอย่างยิ่ง','ไม่เห็นด้วย','ไม่แน่ใจ','เห็นด้วย','เห็นด้วยอย่างยิ่ง']
   };
   const sp = btn.closest('.question-row').querySelector('.score-preview');

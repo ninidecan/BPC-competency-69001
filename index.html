@@ -23,19 +23,19 @@ html, body { height: 100%; }
 .card-locked { opacity: 0.6; cursor: not-allowed; }
 .toast { animation: slideIn 0.3s ease-out; }
 @keyframes slideIn { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-.s2-unselected { background-color:#d1d5db!important; border-color:#9ca3af!important; color:#4b5563!important; }
-.s2-0 { background-color:#9ca3af!important; border-color:#6b7280!important; color:white!important; }
-.s2-1 { background-color:#f87171!important; border-color:#dc2626!important; color:white!important; }
-.s2-2 { background-color:#fb923c!important; border-color:#ea580c!important; color:white!important; }
-.s2-3 { background-color:#fcd34d!important; border-color:#eab308!important; color:#333!important; }
-.s2-4 { background-color:#bfef45!important; border-color:#65a30d!important; color:#1a1a1a!important; }
-.s2-5 { background-color:#4ade80!important; border-color:#16a34a!important; color:white!important; }
-.s3-unselected { background-color:#ddd6fe!important; border-color:#c4b5fd!important; color:#6b21a8!important; }
+.s3-unselected { background-color:#d1d5db!important; border-color:#9ca3af!important; color:#4b5563!important; }
+.s3-0 { background-color:#9ca3af!important; border-color:#6b7280!important; color:white!important; }
 .s3-1 { background-color:#f87171!important; border-color:#dc2626!important; color:white!important; }
 .s3-2 { background-color:#fb923c!important; border-color:#ea580c!important; color:white!important; }
 .s3-3 { background-color:#fcd34d!important; border-color:#eab308!important; color:#333!important; }
 .s3-4 { background-color:#bfef45!important; border-color:#65a30d!important; color:#1a1a1a!important; }
 .s3-5 { background-color:#4ade80!important; border-color:#16a34a!important; color:white!important; }
+.s4-unselected { background-color:#ddd6fe!important; border-color:#c4b5fd!important; color:#6b21a8!important; }
+.s4-1 { background-color:#f87171!important; border-color:#dc2626!important; color:white!important; }
+.s4-2 { background-color:#fb923c!important; border-color:#ea580c!important; color:white!important; }
+.s4-3 { background-color:#fcd34d!important; border-color:#eab308!important; color:#333!important; }
+.s4-4 { background-color:#bfef45!important; border-color:#65a30d!important; color:#1a1a1a!important; }
+.s4-5 { background-color:#4ade80!important; border-color:#16a34a!important; color:white!important; }
 .scale-transition { transition: all 0.3s ease; }
 .score-preview {
   display: inline-block; padding: 6px 10px; background-color: #fef3c7;
@@ -43,6 +43,10 @@ html, body { height: 100%; }
   color: #92400e; margin-top: 4px; font-weight: 600;
 }
 .sticky-header { position: sticky; top: 0; z-index: 30; }
+.mcq-option { transition: all 0.2s; cursor: pointer; }
+.mcq-option:hover { background-color: #ecfdf5; border-color: #10b981; }
+.mcq-option.selected { background-color: #d1fae5; border-color: #059669; }
+.mcq-option input[type="radio"] { accent-color: #059669; }
 </style>
 </head>
 <body class="h-full bg-gradient-to-br from-cyan-50 via-white to-teal-50 overflow-auto">
@@ -196,7 +200,7 @@ html, body { height: 100%; }
         </button>
         <div class="text-center">
           <h2 id="form-title" class="font-bold text-gray-800">แบบประเมิน</h2>
-          <p class="text-xs text-gray-500">ส่วนที่ <span id="current-section">1</span>/<span id="total-section">3</span></p>
+          <p class="text-xs text-gray-500">ส่วนที่ <span id="current-section">1</span>/<span id="total-section">4</span></p>
         </div>
         <div class="w-10"></div>
       </div>
@@ -208,7 +212,7 @@ html, body { height: 100%; }
 
   <div class="w-full max-w-4xl mx-auto p-4 pb-32">
 
-    <!-- Section 1 -->
+    <!-- Section 1: ข้อมูลส่วนบุคคล -->
     <div id="section-1" class="form-section">
       <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-cyan-100">
         <h3 class="text-lg font-bold text-gray-800 mb-1 flex items-center gap-2">
@@ -218,7 +222,6 @@ html, body { height: 100%; }
         <p class="text-gray-500 text-sm ml-10">โปรดกรอกข้อมูลส่วนบุคคลของท่านให้ครบถ้วนและถูกต้อง</p>
       </div>
       <div class="space-y-4" id="personal-info-form">
-
         <div class="question-item bg-white rounded-xl shadow p-4 border border-gray-100" data-question="gender">
           <label class="q-label block font-semibold text-gray-800 mb-3">
             <span class="inline-flex items-center justify-center w-6 h-6 bg-cyan-100 text-cyan-600 rounded-full text-xs font-bold mr-2">1</span>เพศ
@@ -337,13 +340,28 @@ html, body { height: 100%; }
       </div>
     </div>
 
-    <!-- Section 2 -->
+    <!-- Section 2: แบบวัดความรู้ 20 ข้อ -->
     <div id="section-2" class="form-section hidden">
+      <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-emerald-100">
+        <h3 class="text-lg font-bold text-gray-800 mb-1 flex items-center gap-2">
+          <span class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center text-sm font-bold">2</span>
+          ส่วนที่ 2: แบบวัดความรู้การดูแลผู้ป่วยแบบประคับประคองขั้นพื้นฐาน
+        </h3>
+        <p class="text-gray-500 text-sm ml-10">จำนวน 20 ข้อ (คะแนนเต็ม 20 คะแนน) เลือกคำตอบที่ถูกต้องที่สุดเพียงข้อเดียว</p>
+        <div id="knowledge-pass-info" class="hidden ml-10 mt-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+          <p class="text-amber-700 text-sm font-medium">⚠️ เกณฑ์ผ่าน: ได้คะแนนมากกว่า 16 คะแนน จากคะแนนเต็ม 20 คะแนน</p>
+        </div>
+      </div>
+      <div class="space-y-4" id="knowledge-questions"></div>
+    </div>
+
+    <!-- Section 3: สมรรถนะการพยาบาล 65 ข้อ -->
+    <div id="section-3" class="form-section hidden">
       <div class="sticky-header bg-white/95 backdrop-blur-sm shadow-md">
         <div class="max-w-4xl mx-auto p-4">
           <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
-            <span class="w-8 h-8 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center text-sm font-bold">2</span>
-            ส่วนที่ 2: แบบประเมินสมรรถนะการพยาบาลแบบประคับประคอง
+            <span class="w-8 h-8 bg-amber-100 text-amber-600 rounded-lg flex items-center justify-center text-sm font-bold">3</span>
+            ส่วนที่ 3: แบบประเมินสมรรถนะการพยาบาลแบบประคับประคอง
           </h3>
           <p class="text-gray-800 text-sm mb-3">แบบประเมินนี้วัดระดับการรับรู้สมรรถนะของท่านในการให้การพยาบาลผู้ป่วยระยะประคับประคอง กรุณาประเมินความสามารถของท่านในแต่ละรายการตามความเป็นจริง</p>
           <div class="space-y-2">
@@ -362,13 +380,13 @@ html, body { height: 100%; }
       <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 mt-4" id="competency-questions"></div>
     </div>
 
-    <!-- Section 3 -->
-    <div id="section-3" class="form-section hidden">
+    <!-- Section 4: การดูแลยึดบุคคลเป็นศูนย์กลาง 13 ข้อ -->
+    <div id="section-4" class="form-section hidden">
       <div class="sticky-header bg-white/95 backdrop-blur-sm shadow-md">
         <div class="max-w-4xl mx-auto p-4">
           <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
-            <span class="w-8 h-8 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center text-sm font-bold">3</span>
-            ส่วนที่ 3: แบบสอบถามการดูแลยึดบุคคลเป็นศูนย์กลาง
+            <span class="w-8 h-8 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center text-sm font-bold">4</span>
+            ส่วนที่ 4: แบบสอบถามการดูแลยึดบุคคลเป็นศูนย์กลาง
           </h3>
           <p class="text-gray-600 text-sm mb-3">แบบสอบถามนี้มีวัตถุประสงค์เพื่อวัดระดับการดูแลที่เน้นผู้ป่วยเป็นศูนย์กลางภายในหน่วยงาน ตามประสบการณ์และการรับรู้ของบุคลากร กรุณาประเมินแต่ละรายการตามความเป็นจริง</p>
           <div class="space-y-2">
@@ -386,12 +404,12 @@ html, body { height: 100%; }
       <div class="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 mt-4" id="person-centered-questions"></div>
     </div>
 
-    <!-- Section 4 -->
-    <div id="section-4" class="form-section hidden">
+    <!-- Section 5: ประสบการณ์การดูแลผู้ป่วย (post2 only) -->
+    <div id="section-5" class="form-section hidden">
       <div class="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-rose-100">
         <h3 class="text-lg font-bold text-gray-800 mb-1 flex items-center gap-2">
-          <span class="w-8 h-8 bg-rose-100 text-rose-600 rounded-lg flex items-center justify-center text-sm font-bold">4</span>
-          ส่วนที่ 4: ประสบการณ์การดูแลผู้ป่วยแบบประคับประคอง
+          <span class="w-8 h-8 bg-rose-100 text-rose-600 rounded-lg flex items-center justify-center text-sm font-bold">5</span>
+          ส่วนที่ 5: ประสบการณ์การดูแลผู้ป่วยแบบประคับประคอง
         </h3>
         <p class="text-gray-500 text-sm ml-10">โปรดระบุจำนวนประมาณของผู้ป่วยที่ท่านได้ดูแลแบบประคับประคอง</p>
       </div>
@@ -471,9 +489,10 @@ html, body { height: 100%; }
       </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
-      <div id="s2-interpretation" class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl shadow-lg p-6 border border-amber-200"></div>
-      <div id="s3-interpretation" class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-lg p-6 border border-purple-200"></div>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+      <div id="s2-interpretation" class="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl shadow-lg p-6 border border-emerald-200"></div>
+      <div id="s3-interpretation" class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl shadow-lg p-6 border border-amber-200"></div>
+      <div id="s4-interpretation" class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-2xl shadow-lg p-6 border border-purple-200"></div>
     </div>
 
     <div id="patient-experience-card" class="hidden bg-gradient-to-br from-rose-50 to-red-50 rounded-2xl shadow-lg p-6 border border-rose-200 mb-6">
@@ -520,6 +539,52 @@ html, body { height: 100%; }
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwUFNrfGZfEn0tYI01VOgkfMpyavnGgBKMAWuitemMsahfgZQmKZNWxcQwn_h3bNAZ2/exec';
 // ====================================================================
 
+// ==================== KNOWLEDGE TEST QUESTIONS (20) ====================
+const knowledgeQuestions = [
+  { q: "ข้อใดสะท้อน \"หลักการสำคัญ\" ของการดูแลแบบประคับประคองได้ถูกต้องที่สุด",
+    opts: ["มุ่งรักษาโรคให้หายขาดเป็นหลัก","เริ่มดูแลเฉพาะเมื่อผู้ป่วยเข้าสู่ระยะสุดท้ายเท่านั้น","มุ่งเพิ่มคุณภาพชีวิตโดยควบคุมอาการและดูแลแบบองค์รวม","หลีกเลี่ยงการพูดคุยเรื่องการวางแผนล่วงหน้าเพื่อลดความกังวลผู้ป่วย"], ans: 2 },
+  { q: "ผู้ป่วยโรคปอดเรื้อรังระยะท้ายมีอาการหอบเหนื่อยมาก ทีมแพทย์เสนอใส่ท่อช่วยหายใจ แต่ผู้ป่วยลังเลและกล่าวว่า \"ไม่อยากทรมานอีก\" พยาบาลประคับประคองควรดำเนินบทบาทใดเหมาะสมที่สุด",
+    opts: ["สนับสนุนการใส่ท่อช่วยหายใจเพื่อยืดชีวิต","ชี้แจงว่าการไม่ใส่ท่อช่วยหายใจคือการยุติการรักษา","ประเมินความเข้าใจ ความคาดหวัง และคุณค่าชีวิตของผู้ป่วย พร้อมอธิบายทางเลือกการดูแลแบบประคับประคอง","หลีกเลี่ยงการสนทนาเพื่อไม่ให้ผู้ป่วยเครียด"], ans: 2 },
+  { q: "เด็กอายุ 2 ปี ไม่สามารถสื่อสารระดับความปวดได้อย่างชัดเจน ควรเลือกใช้เครื่องมือใดเหมาะสมที่สุดในการประเมินความปวด",
+    opts: ["Numeric Rating Scale (0–10)","Faces Pain Scale","FLACC Scale","Visual Analogue Scale"], ans: 2 },
+  { q: "ผู้ป่วยมะเร็งระยะลุกลามรายงานปวด 9/10 แม้ได้รับ morphine ต่อเนื่อง พยาบาลควรดำเนินการใดเป็นลำดับแรก",
+    opts: ["เพิ่มขนาดยา morphine ทันที","ประเมินลักษณะความปวด ปัจจัยกระตุ้น และผลกระทบต่อการดำเนินชีวิตอย่างเป็นระบบ","หยุดยา opioid เพื่อป้องกันการดื้อยา","ให้ยานอนหลับแทนยาแก้ปวด"], ans: 1 },
+  { q: "ผู้ป่วยระดับ PPS 80% ได้รับ opioid และมีอาการง่วงซึมมากขึ้น อัตราการหายใจ 8 ครั้ง/นาที บทบาทของพยาบาลที่เหมาะสมที่สุดคือข้อใด",
+    opts: ["เพิ่ม opioid เพราะผู้ป่วยยังปวด","ประเมิน sedation score และรายงานแพทย์ พร้อมเตรียมการช่วยเหลือฉุกเฉิน","หยุดยาโดยไม่แจ้งทีม","ไม่ต้องดำเนินการใดๆเพราะต้องการให้ผู้ป่วยเสียชีวิตอย่างสงบ"], ans: 1 },
+  { q: "ผู้ป่วยมะเร็งมีอาการปวดระดับ 5/10 ร่วมกับวิตกกังวลมากและนอนไม่หลับ วิธีใดเหมาะสมที่สุด",
+    opts: ["ประคบเย็นเพียงอย่างเดียว","จัดท่าอย่างเดียว","ฝึกหายใจช้า-ลึก ร่วมกับดนตรีบำบัด","หลีกเลี่ยงการพูดคุยเพื่อให้ผู้ป่วยพักผ่อน"], ans: 2 },
+  { q: "การสื่อสารข่าวร้ายกับผู้ป่วยควรมีลักษณะอย่างไร",
+    opts: ["ใช้เทคนิค SPIKES เพื่อวางโครงสร้างการพูด","บอกข้อมูลทุกอย่างโดยไม่ต้องประเมินสภาพจิตใจ","ให้ครอบครัวบอกแทนเสมอ","หลีกเลี่ยงการพูดเรื่องความตาย"], ans: 1 },
+  { q: "ผู้ป่วยหญิง 59 ปี มะเร็งเต้านมระยะลุกลาม ยังสามารถดูแลตนเองได้ทั้งหมด เดินได้ตามปกติในบ้านและนอกบ้าน รับประทานอาหารได้ดี ไม่มีอาการอื่นชัดเจน ยังคงทำงานที่บ้านได้บ้าง PPS ที่เหมาะสมคือข้อใด",
+    opts: ["PPS 100%","PPS 90%","PPS 80%","PPS 60%"], ans: 1 },
+  { q: "อาการใดต่อไปนี้ เป็นผลข้างเคียงของยา Morphine",
+    opts: ["กล้ามเนื้อกระตุก มือจีบ","ชีพจรช้า และเหงื่อออกมาก","ท้องผูก","เบื่ออาหาร"], ans: 2 },
+  { q: "ผู้ป่วยได้รับคำสั่งแพทย์ให้ CSCI: Morphine 30 mg (3 ml) + Midazolam 10 mg (2 ml) + Buscopan 20 mg (1 ml) CSCI drip syringe driver ต้องการผสมรวมเป็น 20 ml และให้ครบภายใน 24 ชั่วโมง วัดความยาวของ fluid column ได้ 48 mm อัตราการไหลที่ถูกต้องคือข้อใด",
+    opts: ["1 mm/hr","2 mm/hr","3 mm/hr","4 mm/hr"], ans: 1 },
+  { q: "ข้อใดเป็นตำแหน่งที่เหมาะสมสำหรับการให้ยาแบบ SC",
+    opts: ["บริเวณที่มีบวมจาก lymphedema","บริเวณที่มีแผลอักเสบ","บริเวณ anterior abdominal wall","บริเวณที่ได้รับการฉายแสง"], ans: 2 },
+  { q: "ผู้ป่วยมะเร็งปอดระยะลุกลาม ได้รับ Palliative Chemotherapy 4 รอบ มีอาการอ่อนเพลียมาก น้ำหนักลด และ ECOG เปลี่ยนจาก 2 เป็น 4 CT scan พบ progressive disease แนวทางที่เหมาะสมที่สุดคือข้อใด",
+    opts: ["เปลี่ยนสูตรเคมีบำบัดทันที","เพิ่มขนาดยาเพื่อควบคุมโรค","หยุดเคมีบำบัด และมุ่งเน้นการดูแลแบบประคับประคองเต็มรูปแบบ","ให้เคมีบำบัดต่อจนครบ 6 รอบ"], ans: 2 },
+  { q: "ความแตกต่างสำคัญระหว่าง Advance Care Planning (ACP) และ Living Will คืออะไร",
+    opts: ["ACP เป็นกระบวนการสนทนาสื่อสารสองทาง ส่วน Living Will เป็นเอกสารแสดงเจตนา","ACP มีผลบังคับใช้ตามกฎหมายมากกว่า Living Will","Living Will เกี่ยวข้องกับการบริจาคอวัยวะ แต่ ACP เกี่ยวข้องกับการรักษาโรค","Living Will ทำได้เฉพาะตอนใกล้เสียชีวิต แต่ ACP ต้องทำตอนยังแข็งแรงดีเท่านั้น"], ans: 0 },
+  { q: "องค์ประกอบของ ACP ที่เรียกว่า Proxy Nomination หมายถึงสิ่งใด",
+    opts: ["การแต่งตั้งบุคคลใกล้ชิดให้เป็นผู้แสดงเจตนาแทนเมื่อผู้ป่วยไม่สามารถตัดสินใจได้","การบันทึกข้อมูลสุขภาพส่วนตัวลงในระบบเวชระเบียน","การวินิจฉัยของแพทย์ว่าผู้ป่วยเข้าสู่ระยะสุดท้ายของชีวิตแล้ว","การเลือกวิธีรักษาที่ต้องการและไม่ต้องการด้วยตนเอง"], ans: 0 },
+  { q: "ข้อใดอธิบายความหมายของ การดูแลด้านจิตวิญญาณ (Spiritual care) ได้ถูกต้องที่สุด",
+    opts: ["การรักษาภาวะซึมเศร้าด้วยยา","การสนับสนุนกิจกรรมทางศาสนาเท่านั้น","การตอบสนองต่อสิ่งที่ผู้ป่วยเห็นว่ามีคุณค่าสูงสุด รวมถึงการค้นหาความหมายของชีวิต","การให้คำแนะนำเกี่ยวกับสิทธิการรักษาพยาบาล"], ans: 2 },
+  { q: "ผู้ป่วยมะเร็งระยะท้ายกล่าวว่า \"ฉันรู้สึกว่าเป็นภาระของลูกหลาน ไม่อยากอยู่แล้ว\" การประเมินในข้อใดสำคัญที่สุดในสถานการณ์นี้",
+    opts: ["ประเมินอาการปวดทางกาย","ประเมินความคิด (Thought) และคัดกรองภาวะซึมเศร้า เช่น แบบประเมิน 2Q, 9Q","ประเมินรายได้ของครอบครัว","ประเมินประวัติการทำงานในอดีต"], ans: 1 },
+  { q: "พฤติกรรมการโศกเศร้าของเด็กที่เรียกว่า \"Puddle Jumping\" (กระโดดข้ามแอ่งน้ำ) มีความหมายว่าอย่างไร",
+    opts: ["เด็กพยายามหลีกเลี่ยงที่จะพูดถึงการเสียชีวิต","เด็กจะเสียใจรุนแรงจนไม่สามารถกลับไปเล่นได้อีกนาน","การที่เด็กเศร้าเดี๋ยวเดียวแล้วก็กลับไปเล่นหัวเราะได้ใหม่เป็นปกติ","เด็กจะแสร้งทำเป็นมีความสุขเพื่อเอาใจผู้ใหญ่"], ans: 2 },
+  { q: "ผู้ป่วยหญิงอายุ 65 ปี อยู่ในภาวะไม่รู้สึกตัวจากภาวะสมองขาดออกซิเจน ไม่มีโอกาสฟื้นคืนสภาพเดิม ครอบครัวนำเอกสารแสดงเจตนาปฏิเสธการใส่เครื่องช่วยหายใจ (Living Will) ที่ผู้ป่วยเคยทำไว้มาก่อน ข้อใดอธิบายการยุติการรักษาในกรณีนี้ได้ถูกต้องที่สุด",
+    opts: ["การถอดเครื่องช่วยหายใจถือเป็นการุณยฆาต","การยุติการรักษาเป็นการปล่อยให้เสียชีวิตตามธรรมชาติ ตามเจตนาผู้ป่วย","ต้องรอให้ศาลมีคำสั่งก่อนจึงจะยุติการรักษาได้","การไม่รักษาถือว่าผิดกฎหมายเสมอ"], ans: 1 },
+  { q: "ถ้าผู้ป่วยระยะประคับประคอง รู้สึกตัวรู้เรื่องดี On NG-Tube Feed รับได้ ยังไม่เคยได้รับยา strong opioid มาก่อน PS = 5/10 แพทย์พิจารณาสั่งให้ยา Strong Opioid แบบฟอร์มไหนเหมาะกับผู้ป่วยมากที่สุด",
+    opts: ["MST(10) เม็ด","Fentanyl แผ่นแปะ","MOIR เม็ด","Morphin IV drip"], ans: 2 },
+  { q: "ผู้ป่วยมะเร็งระยะใกล้เสียชีวิต ซึมมาก หายใจมีเสียงครืดคราด (death rattle) การพยาบาลที่เหมาะสมที่สุดคือข้อใด",
+    opts: ["เพิ่มอัตราการให้ออกซิเจนจน SpO₂ มากกว่า 95% และเฝ้าระวังใกล้ชิด","ดูดเสมหะแบบตื้น (oropharyngeal suction) เป็นระยะ พร้อมประเมินความทุกข์ผู้ป่วย","อธิบายธรรมชาติของ death rattle ประเมินว่าผู้ป่วยมี distress จริงหรือไม่ จัดท่าตะแคง ลด/หลีกเลี่ยงสารน้ำส่วนเกิน และพิจารณาให้ยาลดการหลั่งน้ำลาย เสมหะ","ให้สารน้ำ IV เพิ่มเพื่อป้องกันการคั่งของเสมหะ"], ans: 2 }
+];
+
+const CHOICE_LABELS = ['ก','ข','ค','ง'];
+
 // ==================== COMPETENCY QUESTIONS (65) ====================
 const competencyQuestions = [
   "ท่านให้การช่วยเหลือผู้ป่วยระยะประคับประคองและครอบครัวในการรับมือกับความเครียดต่างๆที่เกี่ยวข้องกับการเจ็บป่วย",
@@ -536,14 +601,14 @@ const competencyQuestions = [
   "ท่านสามารถนำแนวคิด/ทฤษฎี/ ผลงานวิจัย/ หรือหลักฐานเชิงประจักษ์ที่เกี่ยวข้อง มาประยุกต์ในการวางแผนดูแลผู้ป่วยระยะประคับประคองและครอบครัว นำแผนไปปฏิบัติให้เหมาะสมกับวัฒนธรรม จิตวิญญาณ ในทุกระดับของระบบบริการ",
   "ท่านสามารถประเมินประสิทธิผลการปฏิบัติการดูแลผู้ป่วยระยะประคับประคองและครอบครัว และปรับปรุงคุณภาพการดูแลอย่างต่อเนื่อง",
   "ท่านประเมินอาการปวดในผู้ป่วยระยะประคับประคอง โดยคำนึงถึงองค์ประกอบต่อไปนี้ทั้งหมดได้แก่ลักษณะการปวดระยะเวลา ตำแหน่งที่ปวด ความรุนแรงของการปวด ปัจจัยที่ทำให้ปวดมากขึ้นหรือปวดน้อยลง",
-  "ท่านประเมินอาการปวดสำหรับผู้ป่วยที่ไม่สามารถสื่อสารได",
+  "ท่านประเมินอาการปวดสำหรับผู้ป่วยที่ไม่สามารถสื่อสารได้",
   "ท่านการใช้ยาอย่างมีประสิทธิภาพเพื่อลดอาการปวดในผู้ป่วยระยะประคับประคอง",
   "ท่านการใช้การรักษาแบบไม่ใช้ยาหรือการรักษาแบบสนับสนุน/ทางเลือกอย่างเหมาะสม เพื่อบรรเทาอาการปวดในผู้ป่วยระยะประคับประคอง",
   "ท่านให้การตรวจค้นหาอาการข้างเคียงที่เกี่ยวข้องกับการได้รับยาแก้ปวด",
   "ท่านให้การดูแลที่มีประสิทธิภาพเพื่อลดอาการคลื่นไส้และอาเจียนในผู้ป่วยระยะประคับประคอง",
   "ท่านให้การดูแลอย่างมีประสิทธิภาพเพื่อลดอาการท้องผูกในผู้ป่วยระยะประคับประคอง",
-  "ท่านให้การดูแลที่มีประสิทธิภาพเพื่อบรรเทาความเหนื่อยล้าในผู้ป่วยระยะประคับประคอง ",
-  "ท่านให้การดูแลที่มีประสิทธิภาพเพื่อบรรเทาอาการเหนื่อยหอบในผู้ป่วยระยะประคับประคอง ",
+  "ท่านให้การดูแลที่มีประสิทธิภาพเพื่อบรรเทาความเหนื่อยล้าในผู้ป่วยระยะประคับประคอง",
+  "ท่านให้การดูแลที่มีประสิทธิภาพเพื่อบรรเทาอาการเหนื่อยหอบในผู้ป่วยระยะประคับประคอง",
   "ท่านให้การดูแลช่องปากอย่างเหมาะสมเพื่อส่งเสริมความสุขสบายในผู้ป่วยระยะประคับประคอง",
   "ท่านให้การตรวจค้นหาภาวะสับสนในผู้ป่วยระยะประคับประคอง",
   "ท่านติดตามผลการบรรเทาอาการปวด และ/หรืออาการรบกวนและปรับเปลี่ยนการจัดการอาการอย่างเหมาะสม",
@@ -610,7 +675,7 @@ const personCenteredQuestions = [
 let currentUser = null;
 let currentRound = null;
 let currentSection = 1;
-let formAnswers = { section1: {}, section2: [], section3: [], section4: {} };
+let formAnswers = { section1: {}, section2: [], section3: [], section4: [], section5: {} };
 let resultsChart = null;
 
 // ==================== API ====================
@@ -670,12 +735,12 @@ function formatDate(date) {
 }
 
 function getInterpretation(section, score) {
-  if (section === 2) {
+  if (section === 3) { // competency 0-325
     if (score < 81.25)  return { level:'น้อยมาก', color:'text-red-600',    bg:'bg-red-50' };
     if (score < 162.5)  return { level:'น้อย',     color:'text-orange-600', bg:'bg-orange-50' };
     if (score < 243.75) return { level:'ปานกลาง',  color:'text-amber-600',  bg:'bg-amber-50' };
     return { level:'มาก', color:'text-emerald-600', bg:'bg-emerald-50' };
-  } else {
+  } else { // person-centered 13-65
     if (score < 16.25)  return { level:'น้อยมาก', color:'text-red-600',    bg:'bg-red-50' };
     if (score < 32.5)   return { level:'น้อย',     color:'text-orange-600', bg:'bg-orange-50' };
     if (score < 48.75)  return { level:'ปานกลาง',  color:'text-amber-600',  bg:'bg-amber-50' };
@@ -730,9 +795,9 @@ function buildUserFromRecords(licenseNumber, records) {
     licenseNumber,
     personalInfo: null,
     rounds: {
-      pre:   { completed:false, date:null, scores:{section2:0,section3:0}, patients:{cancer:0,non_cancer:0} },
-      post1: { completed:false, date:null, scores:{section2:0,section3:0}, patients:{cancer:0,non_cancer:0} },
-      post2: { completed:false, date:null, scores:{section2:0,section3:0}, patients:{cancer:0,non_cancer:0} }
+      pre:   { completed:false, date:null, scores:{knowledge:0,section3:0,section4:0}, knowledgePass:false, patients:{cancer:0,non_cancer:0} },
+      post1: { completed:false, date:null, scores:{knowledge:0,section3:0,section4:0}, knowledgePass:false, patients:{cancer:0,non_cancer:0} },
+      post2: { completed:false, date:null, scores:{knowledge:0,section3:0,section4:0}, knowledgePass:false, patients:{cancer:0,non_cancer:0} }
     }
   };
   if (records.length > 0) {
@@ -751,7 +816,12 @@ function buildUserFromRecords(licenseNumber, records) {
     currentUser.rounds[rnd] = {
       completed: true,
       date: record.assessment_date,
-      scores: { section2: Number(record.section2_score)||0, section3: Number(record.section3_score)||0 },
+      scores: {
+        knowledge: Number(record.knowledge_score)||0,
+        section3: Number(record.section3_score)||0,
+        section4: Number(record.section4_score)||0
+      },
+      knowledgePass: record.knowledge_pass === 'ผ่าน' || record.knowledge_pass === true,
       patients: { cancer: Number(record.cancer_patients)||0, non_cancer: Number(record.non_cancer_patients)||0 }
     };
   });
@@ -810,34 +880,45 @@ function updateTimelineCards() {
       progressBar.style.width = '0%';
     }
   });
-  const allCompleted = rounds.every(r => currentUser.rounds[r].completed);
-  document.getElementById('dashboard-btn-container').classList.toggle('hidden', !allCompleted);
+  // Show dashboard button when all completed
+  const anyCompleted = ['pre','post1','post2'].some(r => currentUser.rounds[r].completed);
+  document.getElementById('dashboard-btn-container').classList.toggle('hidden', !anyCompleted);
 }
 
 // ==================== FORM ====================
 function getFlow() {
-  if (currentRound === 'pre')  return currentUser.personalInfo ? [2,3] : [1,2,3];
-  if (currentRound === 'post1') return [2,3];
-  if (currentRound === 'post2') return [2,3,4];
-  return [1,2,3];
+  // Pre-test: personal(if needed), knowledge, competency, person-centered
+  // Post1: knowledge(must pass), competency, person-centered
+  // Post2: competency, person-centered, patient-experience
+  if (currentRound === 'pre') {
+    return currentUser.personalInfo ? [2,3,4] : [1,2,3,4];
+  }
+  if (currentRound === 'post1') return [2,3,4];
+  if (currentRound === 'post2') return [3,4,5];
+  return [1,2,3,4];
 }
 
 function getStepIndex(sectionId) {
   return getFlow().indexOf(sectionId);
 }
+
 function startAssessment(round) {
   currentRound = round;
-
-  formAnswers = { section1:{}, section2:[], section3:[], section4:{} };
+  formAnswers = { section1:{}, section2:[], section3:[], section4:[], section5:{} };
   if (currentUser.personalInfo) formAnswers.section1 = { ...currentUser.personalInfo };
 
   const titles = { pre:'Pre-test', post1:'Post-test 1', post2:'Post-test 2' };
   document.getElementById('form-title').textContent = `แบบประเมิน ${titles[currentRound]}`;
 
+  // Show pass criteria for Post-test 1
+  const passInfo = document.getElementById('knowledge-pass-info');
+  if (currentRound === 'post1') passInfo.classList.remove('hidden');
+  else passInfo.classList.add('hidden');
+
   const flow = getFlow();
   document.getElementById('total-section').textContent = flow.length;
 
-  currentSection = flow[0];   // ✅ เริ่มที่ section จริงตัวแรกของ flow
+  currentSection = flow[0];
   showPage('form-page');
   generateQuestions();
   showSection(currentSection);
@@ -845,43 +926,66 @@ function startAssessment(round) {
 }
 
 function generateQuestions() {
-  // Section 2
+  // Section 2: Knowledge MCQ
+  document.getElementById('knowledge-questions').innerHTML = knowledgeQuestions.map((item, i) => {
+    return `<div class="question-item bg-white rounded-xl shadow p-4 border border-gray-100 mb-3" data-question="kq_${i}">
+      <p class="font-semibold text-gray-800 mb-3">
+        <span class="inline-flex items-center justify-center w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg text-sm font-bold mr-2">${i+1}</span>
+        ${item.q}
+      </p>
+      <div class="space-y-2 ml-10">
+        ${item.opts.map((opt, j) => `
+          <label class="mcq-option flex items-start gap-3 p-3 border-2 border-gray-200 rounded-xl cursor-pointer">
+            <input type="radio" name="kq_${i}" value="${j}" class="w-5 h-5 mt-0.5 text-emerald-600 flex-shrink-0" onchange="selectMCQ(${i},${j},this)">
+            <span class="text-gray-700"><strong class="text-emerald-600 mr-1">${CHOICE_LABELS[j]}.</strong> ${opt}</span>
+          </label>
+        `).join('')}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Section 3: Competency Likert
   document.getElementById('competency-questions').innerHTML = competencyQuestions.map((q,i) => {
-    const cv = formAnswers.section2[i];
-    return `<div class="question-row zebra-row p-4 border-b border-gray-100" data-question="s2_${i}">
+    const cv = formAnswers.section3[i];
+    return `<div class="question-row zebra-row p-4 border-b border-gray-100" data-question="s3_${i}">
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="flex-1">
           <span class="inline-flex items-center justify-center w-8 h-8 bg-amber-100 text-amber-600 rounded-lg text-sm font-bold mr-2">${i+1}</span>
-          <span class="q-text font-semibold text-gray-800 text-base sm:text-sm md:text-base leading-relaxed">
-  ${q}
-</span>
+          <span class="q-text font-semibold text-gray-800 text-base sm:text-sm md:text-base leading-relaxed">${q}</span>
           ${cv !== undefined ? `<div class="score-preview">เลือก: ระดับ ${cv}</div>` : ''}
         </div>
         <div class="flex gap-1 justify-end flex-wrap min-w-fit">
-          ${[0,1,2,3,4,5].map(score => `<button type="button" class="likert-btn s2-${cv===score?score:'unselected'}" data-section="2" data-index="${i}" data-value="${score}" onclick="selectLikert(this)" title="${['ไม่มั่นใจเลย','ไม่มั่นใจ','มั่นใจเล็กน้อย','มั่นใจ','มั่นใจมาก','มั่นใจเต็มที่'][score]}">${score}</button>`).join('')}
+          ${[0,1,2,3,4,5].map(score => `<button type="button" class="likert-btn s3-${cv===score?score:'unselected'}" data-section="3" data-index="${i}" data-value="${score}" onclick="selectLikert(this)" title="${['ไม่มั่นใจเลย','ไม่มั่นใจ','มั่นใจเล็กน้อย','มั่นใจ','มั่นใจมาก','มั่นใจเต็มที่'][score]}">${score}</button>`).join('')}
         </div>
       </div>
     </div>`;
   }).join('');
 
-  // Section 3
+  // Section 4: Person-centered Likert
   document.getElementById('person-centered-questions').innerHTML = personCenteredQuestions.map((q,i) => {
-    const cv = formAnswers.section3[i];
-    return `<div class="question-row zebra-row p-4 border-b border-gray-100" data-question="s3_${i}">
+    const cv = formAnswers.section4[i];
+    return `<div class="question-row zebra-row p-4 border-b border-gray-100" data-question="s4_${i}">
       <div class="flex flex-col sm:flex-row sm:items-center gap-3">
         <div class="flex-1">
           <span class="inline-flex items-center justify-center w-8 h-8 bg-purple-100 text-purple-600 rounded-lg text-sm font-bold mr-2">${i+1}</span>
-          <span class="q-text font-semibold text-gray-800 text-base sm:text-sm md:text-base leading-relaxed">
-  ${q}
-</span>
+          <span class="q-text font-semibold text-gray-800 text-base sm:text-sm md:text-base leading-relaxed">${q}</span>
           ${cv !== undefined ? `<div class="score-preview">เลือก: ระดับ ${cv}</div>` : ''}
         </div>
         <div class="flex gap-1 justify-end flex-wrap min-w-fit">
-          ${[1,2,3,4,5].map(score => `<button type="button" class="likert-btn s3-${cv===score?score:'unselected'}" data-section="3" data-index="${i}" data-value="${score}" onclick="selectLikert(this)" title="${['','ไม่เห็นด้วยอย่างยิ่ง','ไม่เห็นด้วย','ไม่แน่ใจ','เห็นด้วย','เห็นด้วยอย่างยิ่ง'][score]}">${score}</button>`).join('')}
+          ${[1,2,3,4,5].map(score => `<button type="button" class="likert-btn s4-${cv===score?score:'unselected'}" data-section="4" data-index="${i}" data-value="${score}" onclick="selectLikert(this)" title="${['','ไม่เห็นด้วยอย่างยิ่ง','ไม่เห็นด้วย','ไม่แน่ใจ','เห็นด้วย','เห็นด้วยอย่างยิ่ง'][score]}">${score}</button>`).join('')}
         </div>
       </div>
     </div>`;
   }).join('');
+}
+
+function selectMCQ(questionIdx, optIdx, radio) {
+  formAnswers.section2[questionIdx] = optIdx;
+  const container = radio.closest('.question-item');
+  container.classList.remove('error-highlight');
+  container.querySelectorAll('.mcq-option').forEach(opt => opt.classList.remove('selected'));
+  radio.closest('.mcq-option').classList.add('selected');
+  updateFormProgress();
 }
 
 function selectLikert(btn) {
@@ -889,20 +993,21 @@ function selectLikert(btn) {
   const index   = parseInt(btn.dataset.index);
   const value   = parseInt(btn.dataset.value);
   btn.closest('.question-row').classList.remove('error-highlight');
+  const prefix = section === 3 ? 's3' : 's4';
   btn.parentElement.querySelectorAll('.likert-btn').forEach(b => {
-    b.classList.remove('s2-0','s2-1','s2-2','s2-3','s2-4','s2-5','s3-1','s3-2','s3-3','s3-4','s3-5','s2-unselected','s3-unselected');
-    b.classList.add(section === 2 ? 's2-unselected' : 's3-unselected');
+    b.classList.remove('s3-0','s3-1','s3-2','s3-3','s3-4','s3-5','s4-1','s4-2','s4-3','s4-4','s4-5','s3-unselected','s4-unselected');
+    b.classList.add(`${prefix}-unselected`);
   });
-  btn.classList.remove('s2-unselected','s3-unselected');
-  btn.classList.add(section === 2 ? `s2-${value}` : `s3-${value}`);
-  if (section === 2) formAnswers.section2[index] = value;
-  else formAnswers.section3[index] = value;
+  btn.classList.remove(`${prefix}-unselected`);
+  btn.classList.add(`${prefix}-${value}`);
+  if (section === 3) formAnswers.section3[index] = value;
+  else formAnswers.section4[index] = value;
   const levels = {
-    s2: ['ไม่มั่นใจเลย','ไม่มั่นใจ','มั่นใจเล็กน้อย','มั่นใจ','มั่นใจมาก','มั่นใจเต็มที่'],
-    s3: ['','ไม่เห็นด้วยอย่างยิ่ง','ไม่เห็นด้วย','ไม่แน่ใจ','เห็นด้วย','เห็นด้วยอย่างยิ่ง']
+    s3: ['ไม่มั่นใจเลย','ไม่มั่นใจ','มั่นใจเล็กน้อย','มั่นใจ','มั่นใจมาก','มั่นใจเต็มที่'],
+    s4: ['','ไม่เห็นด้วยอย่างยิ่ง','ไม่เห็นด้วย','ไม่แน่ใจ','เห็นด้วย','เห็นด้วยอย่างยิ่ง']
   };
   const sp = btn.closest('.question-row').querySelector('.score-preview');
-  if (sp) sp.textContent = `เลือก: ระดับ ${value} - ${section===2?levels.s2[value]:levels.s3[value]}`;
+  if (sp) sp.textContent = `เลือก: ระดับ ${value} - ${section===3?levels.s3[value]:levels.s4[value]}`;
   updateFormProgress();
 }
 
@@ -912,24 +1017,13 @@ function showSection(sectionNum) {
   if (idx === -1) return;
 
   currentSection = sectionNum;
-
-  // ✅ แสดงเลขลำดับ 1..n (ไม่ใช่เลข section จริง)
   document.getElementById('current-section').textContent = (idx + 1);
   document.getElementById('total-section').textContent = flow.length;
 
-  // ซ่อน/โชว์ section ตาม "เลข section จริง"
-  document.querySelectorAll('.form-section').forEach((s,i) => {
-    const sec = i + 1;
+  document.querySelectorAll('.form-section').forEach(s => s.classList.add('hidden'));
+  const sectionEl = document.getElementById(`section-${sectionNum}`);
+  if (sectionEl) sectionEl.classList.remove('hidden');
 
-    // กัน section 4 ถ้าไม่ใช่ post2
-    if (sec === 4 && currentRound !== 'post2') {
-      s.classList.add('hidden');
-      return;
-    }
-    s.classList.toggle('hidden', sec !== sectionNum);
-  });
-
-  // ✅ ปุ่มล่างอิง idx ใน flow
   document.getElementById('prev-section-btn').classList.toggle('hidden', idx === 0);
   document.getElementById('next-section-btn').classList.toggle('hidden', idx === flow.length - 1);
   document.getElementById('submit-btn').classList.toggle('hidden', idx !== flow.length - 1);
@@ -944,9 +1038,10 @@ function updateFormProgress() {
 
   let sp = 0;
   if      (currentSection === 1) sp = Object.keys(formAnswers.section1).length / 9;
-  else if (currentSection === 2) sp = formAnswers.section2.filter(a=>a!==undefined).length / competencyQuestions.length;
-  else if (currentSection === 3) sp = formAnswers.section3.filter(a=>a!==undefined).length / personCenteredQuestions.length;
-  else if (currentSection === 4) sp = ((formAnswers.section4.cancer_patients!==undefined?1:0)+(formAnswers.section4.non_cancer_patients!==undefined?1:0)) / 2;
+  else if (currentSection === 2) sp = formAnswers.section2.filter(a=>a!==undefined).length / knowledgeQuestions.length;
+  else if (currentSection === 3) sp = formAnswers.section3.filter(a=>a!==undefined).length / competencyQuestions.length;
+  else if (currentSection === 4) sp = formAnswers.section4.filter(a=>a!==undefined).length / personCenteredQuestions.length;
+  else if (currentSection === 5) sp = ((formAnswers.section5.cancer_patients!==undefined?1:0)+(formAnswers.section5.non_cancer_patients!==undefined?1:0)) / 2;
 
   document.getElementById('form-progress-bar').style.width =
     `${((idx + sp) / totalSteps) * 100}%`;
@@ -978,24 +1073,30 @@ function validateSection(sectionNum) {
       else container.classList.remove('error-highlight');
     });
   } else if (sectionNum === 2) {
-    competencyQuestions.forEach((_,i) => {
-      const row = document.querySelector(`[data-question="s2_${i}"]`);
+    knowledgeQuestions.forEach((_,i) => {
+      const row = document.querySelector(`[data-question="kq_${i}"]`);
       if (formAnswers.section2[i] === undefined) { isValid=false; row.classList.add('error-highlight'); if(!firstError)firstError=row; }
       else row.classList.remove('error-highlight');
     });
   } else if (sectionNum === 3) {
-    personCenteredQuestions.forEach((_,i) => {
+    competencyQuestions.forEach((_,i) => {
       const row = document.querySelector(`[data-question="s3_${i}"]`);
       if (formAnswers.section3[i] === undefined) { isValid=false; row.classList.add('error-highlight'); if(!firstError)firstError=row; }
       else row.classList.remove('error-highlight');
     });
   } else if (sectionNum === 4) {
+    personCenteredQuestions.forEach((_,i) => {
+      const row = document.querySelector(`[data-question="s4_${i}"]`);
+      if (formAnswers.section4[i] === undefined) { isValid=false; row.classList.add('error-highlight'); if(!firstError)firstError=row; }
+      else row.classList.remove('error-highlight');
+    });
+  } else if (sectionNum === 5) {
     const ci = document.getElementById('cancer-patients');
     const ni = document.getElementById('non-cancer-patients');
     if (ci.value.trim()==='') { isValid=false; ci.classList.add('error-highlight'); if(!firstError)firstError=ci; }
-    else { ci.classList.remove('error-highlight'); formAnswers.section4.cancer_patients = parseInt(ci.value)||0; }
+    else { ci.classList.remove('error-highlight'); formAnswers.section5.cancer_patients = parseInt(ci.value)||0; }
     if (ni.value.trim()==='') { isValid=false; ni.classList.add('error-highlight'); if(!firstError)firstError=ni; }
-    else { ni.classList.remove('error-highlight'); formAnswers.section4.non_cancer_patients = parseInt(ni.value)||0; }
+    else { ni.classList.remove('error-highlight'); formAnswers.section5.non_cancer_patients = parseInt(ni.value)||0; }
   }
   if (!isValid && firstError) {
     firstError.scrollIntoView({ behavior:'smooth', block:'center' });
@@ -1004,56 +1105,123 @@ function validateSection(sectionNum) {
   return isValid;
 }
 
+function calculateKnowledgeScore() {
+  let score = 0;
+  knowledgeQuestions.forEach((item, i) => {
+    if (formAnswers.section2[i] === item.ans) score++;
+  });
+  return score;
+}
+
 function calculateScores() {
   return {
-    section2: formAnswers.section2.reduce((a,b) => a + (b||0), 0),
-    section3: formAnswers.section3.reduce((a,b) => a + (b||0), 0)
+    knowledge: calculateKnowledgeScore(),
+    section3: formAnswers.section3.reduce((a,b) => a + (b||0), 0),
+    section4: formAnswers.section4.reduce((a,b) => a + (b||0), 0)
   };
+}
+
+// Handle "Next" for knowledge section with pass/fail logic
+function handleKnowledgeNext() {
+  if (!validateSection(2)) return;
+
+  const knowledgeScore = calculateKnowledgeScore();
+  const isPass = knowledgeScore > 16;
+
+  if (currentRound === 'pre') {
+    // Pre-test: just show score, then proceed
+    showModal(
+      'ผลคะแนน Pre-test',
+      `คะแนนแบบวัดความรู้: ${knowledgeScore}/20`,
+      'info'
+    );
+    document.getElementById('modal-close-btn').onclick = () => {
+      hideModal();
+      const flow = getFlow();
+      const idx = getStepIndex(2);
+      if (idx < flow.length - 1) showSection(flow[idx + 1]);
+    };
+  } else if (currentRound === 'post1') {
+    if (isPass) {
+      showModal(
+        '🎉 ผ่านเกณฑ์!',
+        `คะแนน Post-test 1: ${knowledgeScore}/20\nผลการประเมิน: ผ่าน ✅\n(เกณฑ์ผ่าน: มากกว่า 16 คะแนน)`,
+        'success'
+      );
+      document.getElementById('modal-close-btn').onclick = () => {
+        hideModal();
+        const flow = getFlow();
+        const idx = getStepIndex(2);
+        if (idx < flow.length - 1) showSection(flow[idx + 1]);
+      };
+    } else {
+      showModal(
+        '❌ ไม่ผ่านเกณฑ์',
+        `คะแนน Post-test 1: ${knowledgeScore}/20\nผลการประเมิน: ไม่ผ่าน\n(เกณฑ์ผ่าน: มากกว่า 16 คะแนน)\n\nกรุณาทำแบบวัดความรู้ใหม่อีกครั้ง`,
+        'error'
+      );
+      document.getElementById('modal-close-btn').onclick = () => {
+        hideModal();
+        // Reset knowledge answers and regenerate
+        formAnswers.section2 = [];
+        generateQuestions();
+        showSection(2);
+        showToast('กรุณาทำแบบวัดความรู้ใหม่', 'warning');
+      };
+    }
+  }
 }
 
 async function submitAssessment() {
   const flow = getFlow();
-const lastSection = flow[flow.length - 1];
-if (!validateSection(lastSection)) return;
+  const lastSection = flow[flow.length - 1];
+  if (!validateSection(lastSection)) return;
 
   const scores = calculateScores();
+  const knowledgePass = scores.knowledge > 16;
   if (!currentUser.personalInfo) currentUser.personalInfo = { ...formAnswers.section1 };
 
   currentUser.rounds[currentRound] = {
     completed: true,
     date: new Date().toISOString(),
     scores,
+    knowledgePass,
     patients: currentRound === 'post2'
-      ? { cancer: formAnswers.section4.cancer_patients||0, non_cancer: formAnswers.section4.non_cancer_patients||0 }
+      ? { cancer: formAnswers.section5.cancer_patients||0, non_cancer: formAnswers.section5.non_cancer_patients||0 }
       : { cancer:0, non_cancer:0 }
   };
 
-  const interp2 = getInterpretation(2, scores.section2);
   const interp3 = getInterpretation(3, scores.section3);
+  const interp4 = getInterpretation(4, scores.section4);
 
   const record = {
     license_number: currentUser.licenseNumber,
     round: currentRound,
     ...currentUser.personalInfo,
-    section2_score: scores.section2,
+    knowledge_score: scores.knowledge,
+    knowledge_pass: knowledgePass ? 'ผ่าน' : 'ไม่ผ่าน',
     section3_score: scores.section3,
-    interpretation_s2: interp2.level,
+    section4_score: scores.section4,
     interpretation_s3: interp3.level,
+    interpretation_s4: interp4.level,
     cancer_patients: currentUser.rounds[currentRound].patients.cancer,
     non_cancer_patients: currentUser.rounds[currentRound].patients.non_cancer,
     assessment_date: new Date().toISOString()
   };
-  formAnswers.section2.forEach((v,i) => record[`section2_q${i+1}`] = v||0);
+  formAnswers.section2.forEach((v,i) => record[`knowledge_q${i+1}`] = v !== undefined ? v : '');
   formAnswers.section3.forEach((v,i) => record[`section3_q${i+1}`] = v||0);
+  formAnswers.section4.forEach((v,i) => record[`section4_q${i+1}`] = v||0);
 
   try {
     const result = await apiCreate(record);
     if (result && result.isOk !== false) {
-      showModal(
-        'บันทึกสำเร็จ!',
-        `สมรรถนะการพยาบาล: ${scores.section2}/325 ระดับ${interp2.level}\nการดูแลยึดบุคคลเป็นศูนย์กลาง: ${scores.section3}/65 ระดับ${interp3.level}`,
-        'success'
-      );
+      let msg = '';
+      if (currentRound !== 'post2') {
+        msg = `แบบวัดความรู้: ${scores.knowledge}/20 ${knowledgePass ? '(ผ่าน ✅)' : ''}\nสมรรถนะการพยาบาล: ${scores.section3}/325 ระดับ${interp3.level}\nการดูแลยึดบุคคลเป็นศูนย์กลาง: ${scores.section4}/65 ระดับ${interp4.level}`;
+      } else {
+        msg = `สมรรถนะการพยาบาล: ${scores.section3}/325 ระดับ${interp3.level}\nการดูแลยึดบุคคลเป็นศูนย์กลาง: ${scores.section4}/65 ระดับ${interp4.level}`;
+      }
+      showModal('บันทึกสำเร็จ!', msg, 'success');
       document.getElementById('modal-close-btn').onclick = () => { hideModal(); showTimeline(); };
     } else {
       showToast('เกิดข้อผิดพลาดในการบันทึกข้อมูล', 'error');
@@ -1062,7 +1230,7 @@ if (!validateSection(lastSection)) return;
     showToast('เกิดข้อผิดพลาด: ' + e.message, 'error');
   }
 }
-  
+
 // ==================== DASHBOARD ====================
 function showDashboard() {
   showPage('dashboard-page');
@@ -1077,41 +1245,63 @@ function showDashboard() {
 function renderChart() {
   const ctx = document.getElementById('results-chart').getContext('2d');
   if (resultsChart) resultsChart.destroy();
+
+  const labels = [];
+  const knowledgeData = [];
+  const s3Data = [];
+  const s4Data = [];
+  const rounds = ['pre','post1','post2'];
+  const roundLabels = { pre:'Pre-test', post1:'Post-test 1', post2:'Post-test 2' };
+
+  rounds.forEach(r => {
+    if (currentUser.rounds[r].completed) {
+      labels.push(roundLabels[r]);
+      knowledgeData.push(currentUser.rounds[r].scores.knowledge || 0);
+      s3Data.push(currentUser.rounds[r].scores.section3 || 0);
+      s4Data.push(currentUser.rounds[r].scores.section4 || 0);
+    }
+  });
+
+  const datasets = [
+    {
+      label: 'ส่วนที่ 3: สมรรถนะการพยาบาล (0-325)',
+      data: s3Data,
+      borderColor:'#F59E0B', backgroundColor:'rgba(245,158,11,0.1)',
+      tension:0.4, fill:true, pointRadius:7, pointBackgroundColor:'#F59E0B', pointBorderColor:'#fff', pointBorderWidth:2,
+      yAxisID: 'y'
+    },
+    {
+      label: 'ส่วนที่ 4: การดูแลยึดบุคคลเป็นศูนย์กลาง (13-65)',
+      data: s4Data,
+      borderColor:'#A855F7', backgroundColor:'rgba(168,85,247,0.1)',
+      tension:0.4, fill:true, pointRadius:7, pointBackgroundColor:'#A855F7', pointBorderColor:'#fff', pointBorderWidth:2,
+      yAxisID: 'y'
+    }
+  ];
+
+  // Only show knowledge dataset if any round has knowledge score
+  const hasKnowledge = knowledgeData.some(d => d > 0);
+  if (hasKnowledge) {
+    datasets.unshift({
+      label: 'ส่วนที่ 2: แบบวัดความรู้ (0-20)',
+      data: knowledgeData,
+      borderColor:'#10B981', backgroundColor:'rgba(16,185,129,0.1)',
+      tension:0.4, fill:true, pointRadius:7, pointBackgroundColor:'#10B981', pointBorderColor:'#fff', pointBorderWidth:2,
+      yAxisID: 'y2'
+    });
+  }
+
   resultsChart = new Chart(ctx, {
     type: 'line',
-    data: {
-      labels: ['Pre-test','Post-test 1','Post-test 2'],
-      datasets: [
-        {
-          label: 'ส่วนที่ 2: สมรรถนะการพยาบาล (0-325)',
-          data: [currentUser.rounds.pre.scores.section2, currentUser.rounds.post1.scores.section2, currentUser.rounds.post2.scores.section2],
-          borderColor:'#F59E0B', backgroundColor:'rgba(245,158,11,0.1)',
-          tension:0.4, fill:true, pointRadius:7, pointBackgroundColor:'#F59E0B', pointBorderColor:'#fff', pointBorderWidth:2
-        },
-        {
-          label: 'ส่วนที่ 3: การดูแลยึดบุคคลเป็นศูนย์กลาง (13-65)',
-          data: [currentUser.rounds.pre.scores.section3, currentUser.rounds.post1.scores.section3, currentUser.rounds.post2.scores.section3],
-          borderColor:'#A855F7', backgroundColor:'rgba(168,85,247,0.1)',
-          tension:0.4, fill:true, pointRadius:7, pointBackgroundColor:'#A855F7', pointBorderColor:'#fff', pointBorderWidth:2
-        }
-      ]
-    },
+    data: { labels, datasets },
     options: {
       responsive:true, maintainAspectRatio:false,
       plugins: {
-        legend: { position:'bottom', labels:{ font:{size:13}, padding:20, usePointStyle:true } },
-        tooltip: {
-          callbacks: {
-            label: ctx => {
-              const v = ctx.parsed.y;
-              const s = ctx.datasetIndex === 0 ? 2 : 3;
-              return `${ctx.dataset.label}: ${v} : ระดับ${getInterpretation(s,v).level}`;
-            }
-          }
-        }
+        legend: { position:'bottom', labels:{ font:{size:12}, padding:15, usePointStyle:true } }
       },
       scales: {
-        y: { beginAtZero:true, max:325, grid:{ color:'rgba(0,0,0,0.05)' } },
+        y: { beginAtZero:true, max:325, position:'left', grid:{ color:'rgba(0,0,0,0.05)' }, title:{ display:true, text:'คะแนน (ส่วนที่ 3,4)' } },
+        y2: { beginAtZero:true, max:20, position:'right', grid:{ drawOnChartArea:false }, title:{ display:true, text:'คะแนน (ส่วนที่ 2)' }, display: hasKnowledge },
         x: { grid:{ display:false } }
       }
     }
@@ -1119,24 +1309,34 @@ function renderChart() {
 }
 
 function renderScoreTable() {
+  const pre = currentUser.rounds.pre;
+  const post1 = currentUser.rounds.post1;
+  const post2 = currentUser.rounds.post2;
+
   document.getElementById('score-table-body').innerHTML = `
     <tr class="border-b">
-      <td class="px-4 py-3 font-medium text-gray-700">ส่วนที่ 2: สมรรถนะการพยาบาล</td>
-      <td class="px-4 py-3 text-center font-semibold text-amber-600">${currentUser.rounds.pre.scores.section2}/325</td>
-      <td class="px-4 py-3 text-center font-semibold text-amber-600">${currentUser.rounds.post1.scores.section2}/325</td>
-      <td class="px-4 py-3 text-center font-semibold text-amber-600">${currentUser.rounds.post2.scores.section2}/325</td>
+      <td class="px-4 py-3 font-medium text-gray-700">ส่วนที่ 2: แบบวัดความรู้</td>
+      <td class="px-4 py-3 text-center font-semibold text-emerald-600">${pre.completed ? pre.scores.knowledge+'/20' : '-'}</td>
+      <td class="px-4 py-3 text-center font-semibold text-emerald-600">${post1.completed ? post1.scores.knowledge+'/20' + (post1.knowledgePass ? ' ✅' : '') : '-'}</td>
+      <td class="px-4 py-3 text-center text-gray-400">-</td>
     </tr>
     <tr class="border-b bg-gray-50">
-      <td class="px-4 py-3 font-medium text-gray-700">ส่วนที่ 3: การดูแลยึดบุคคลเป็นศูนย์กลาง</td>
-      <td class="px-4 py-3 text-center font-semibold text-purple-600">${currentUser.rounds.pre.scores.section3}/65</td>
-      <td class="px-4 py-3 text-center font-semibold text-purple-600">${currentUser.rounds.post1.scores.section3}/65</td>
-      <td class="px-4 py-3 text-center font-semibold text-purple-600">${currentUser.rounds.post2.scores.section3}/65</td>
+      <td class="px-4 py-3 font-medium text-gray-700">ส่วนที่ 3: สมรรถนะการพยาบาล</td>
+      <td class="px-4 py-3 text-center font-semibold text-amber-600">${pre.completed ? pre.scores.section3+'/325' : '-'}</td>
+      <td class="px-4 py-3 text-center font-semibold text-amber-600">${post1.completed ? post1.scores.section3+'/325' : '-'}</td>
+      <td class="px-4 py-3 text-center font-semibold text-amber-600">${post2.completed ? post2.scores.section3+'/325' : '-'}</td>
+    </tr>
+    <tr class="border-b">
+      <td class="px-4 py-3 font-medium text-gray-700">ส่วนที่ 4: การดูแลยึดบุคคลเป็นศูนย์กลาง</td>
+      <td class="px-4 py-3 text-center font-semibold text-purple-600">${pre.completed ? pre.scores.section4+'/65' : '-'}</td>
+      <td class="px-4 py-3 text-center font-semibold text-purple-600">${post1.completed ? post1.scores.section4+'/65' : '-'}</td>
+      <td class="px-4 py-3 text-center font-semibold text-purple-600">${post2.completed ? post2.scores.section4+'/65' : '-'}</td>
     </tr>
     <tr>
       <td class="px-4 py-3 font-medium text-gray-700">วันที่ทำแบบประเมิน</td>
-      <td class="px-4 py-3 text-center text-sm text-gray-500">${formatDate(currentUser.rounds.pre.date)}</td>
-      <td class="px-4 py-3 text-center text-sm text-gray-500">${formatDate(currentUser.rounds.post1.date)}</td>
-      <td class="px-4 py-3 text-center text-sm text-gray-500">${formatDate(currentUser.rounds.post2.date)}</td>
+      <td class="px-4 py-3 text-center text-sm text-gray-500">${formatDate(pre.date)}</td>
+      <td class="px-4 py-3 text-center text-sm text-gray-500">${formatDate(post1.date)}</td>
+      <td class="px-4 py-3 text-center text-sm text-gray-500">${formatDate(post2.date)}</td>
     </tr>`;
 }
 
@@ -1144,26 +1344,43 @@ function renderInterpretations() {
   const rounds = ['pre','post1','post2'];
   const labels = { pre:'Pre-test', post1:'Post-test 1', post2:'Post-test 2' };
 
+  // Knowledge
   document.getElementById('s2-interpretation').innerHTML = `
-    <h4 class="font-bold text-gray-800 mb-3">ส่วนที่ 2: สมรรถนะการพยาบาล</h4>
+    <h4 class="font-bold text-gray-800 mb-3">ส่วนที่ 2: แบบวัดความรู้</h4>
     <div class="space-y-2 text-sm">
-      ${rounds.map(r => {
-        const interp = getInterpretation(2, currentUser.rounds[r].scores.section2);
+      ${['pre','post1'].map(r => {
+        const s = currentUser.rounds[r];
+        if (!s.completed) return '';
+        const pass = s.scores.knowledge > 16;
         return `<div class="flex justify-between items-center p-2 bg-white rounded">
           <span>${labels[r]}</span>
-          <span class="font-semibold ${interp.color}">${currentUser.rounds[r].scores.section2} (${interp.level})</span>
+          <span class="font-semibold ${pass ? 'text-emerald-600' : 'text-red-600'}">${s.scores.knowledge}/20 ${r==='post1' ? (pass ? '(ผ่าน)' : '(ไม่ผ่าน)') : ''}</span>
         </div>`;
       }).join('')}
     </div>`;
 
   document.getElementById('s3-interpretation').innerHTML = `
-    <h4 class="font-bold text-gray-800 mb-3">ส่วนที่ 3: การดูแลยึดบุคคลเป็นศูนย์กลาง</h4>
+    <h4 class="font-bold text-gray-800 mb-3">ส่วนที่ 3: สมรรถนะการพยาบาล</h4>
     <div class="space-y-2 text-sm">
       ${rounds.map(r => {
+        if (!currentUser.rounds[r].completed) return '';
         const interp = getInterpretation(3, currentUser.rounds[r].scores.section3);
         return `<div class="flex justify-between items-center p-2 bg-white rounded">
           <span>${labels[r]}</span>
           <span class="font-semibold ${interp.color}">${currentUser.rounds[r].scores.section3} (${interp.level})</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+
+  document.getElementById('s4-interpretation').innerHTML = `
+    <h4 class="font-bold text-gray-800 mb-3">ส่วนที่ 4: การดูแลยึดบุคคลเป็นศูนย์กลาง</h4>
+    <div class="space-y-2 text-sm">
+      ${rounds.map(r => {
+        if (!currentUser.rounds[r].completed) return '';
+        const interp = getInterpretation(4, currentUser.rounds[r].scores.section4);
+        return `<div class="flex justify-between items-center p-2 bg-white rounded">
+          <span>${labels[r]}</span>
+          <span class="font-semibold ${interp.color}">${currentUser.rounds[r].scores.section4} (${interp.level})</span>
         </div>`;
       }).join('')}
     </div>`;
@@ -1186,7 +1403,7 @@ function renderPersonalInfoSummary() {
   const info = currentUser.personalInfo;
   if (!info) { container.innerHTML = '<p class="text-gray-500">ไม่มีข้อมูลส่วนบุคคล</p>'; return; }
 
-  const labels = { gender:'เพศ', age:'อายุ', marital_status:'สถานภาพสมรส', education:'การศึกษา', hospital_level:'ระดับโรงพยาบาล', position:'ตำแหน่ง', work_experience:'ประสบการณ์', pc_experience:'ประสบการณ์ PC', pc_training:'อบรม PC' };
+  const labelMap = { gender:'เพศ', age:'อายุ', marital_status:'สถานภาพสมรส', education:'การศึกษา', hospital_level:'ระดับโรงพยาบาล', position:'ตำแหน่ง', work_experience:'ประสบการณ์', pc_experience:'ประสบการณ์ PC', pc_training:'อบรม PC' };
   const maps = {
     gender: { male:'ชาย', female:'หญิง' },
     marital_status: { single:'โสด', married:'สมรส', divorced:'หย่าร้าง', widowed:'หม้าย', separated:'แยก' },
@@ -1204,7 +1421,7 @@ function renderPersonalInfoSummary() {
 
   container.innerHTML = Object.entries(info)
     .filter(([k]) => k !== 'training_course')
-    .map(([k,v]) => `<div class="bg-gray-50 rounded-lg p-3"><p class="text-xs text-gray-500">${labels[k]||k}</p><p class="font-medium text-gray-800">${fmt(k,v)}</p></div>`)
+    .map(([k,v]) => `<div class="bg-gray-50 rounded-lg p-3"><p class="text-xs text-gray-500">${labelMap[k]||k}</p><p class="font-medium text-gray-800">${fmt(k,v)}</p></div>`)
     .join('');
 
   if (info.training_course) {
@@ -1226,6 +1443,11 @@ document.getElementById('prev-section-btn')?.addEventListener('click', () => {
   if (idx > 0) showSection(flow[idx - 1]);
 });
 document.getElementById('next-section-btn')?.addEventListener('click', () => {
+  // Special handling for knowledge section
+  if (currentSection === 2 && (currentRound === 'pre' || currentRound === 'post1')) {
+    handleKnowledgeNext();
+    return;
+  }
   const flow = getFlow();
   const idx = getStepIndex(currentSection);
   if (validateSection(currentSection) && idx < flow.length - 1) {
